@@ -6,6 +6,11 @@ const monitoramentoBtn = document.querySelector('#monitoramentoBtn')
 const departamentoBtn = document.querySelector('#departamentoBtn')
 const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
+const botaoPerfil = document.getElementById('botaoPerfil');
+const menuPerfil = document.getElementById('menuPerfil');
+const modal = document.querySelector(".modalPerfil");
+const btn = document.getElementById("meuPerfilBtn");
+const closeBtn = document.querySelector(".fecharModal");
 // const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
 
 // pegando a rnc pelo localstorege
@@ -21,8 +26,8 @@ let user = localStorage.getItem('login')
 if(user != null)
     user = JSON.parse(user)
 
-const nome = document.querySelector('#nome')
-nome.innerText = user.nome?user.nome:'xxxx'
+/*const nome = document.querySelector('#nome')
+nome.innerText = user.nome?user.nome:'xxxx'*/
 
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
@@ -81,6 +86,17 @@ for(let i = 0; i < listaSidebarBtn.length; i++) {
         window.location.href = urlSidebar[i]
     })
 }
+botaoPerfil.addEventListener('click', function(event) {
+    event.stopPropagation();
+    menuPerfil.classList.toggle('ativo');
+});
+
+document.addEventListener('click', function(event) {
+    if (!menuPerfil.contains(event.target) && !botaoPerfil.contains(event.target)) {
+        menuPerfil.classList.remove('ativo');
+    }
+});
+
 
 // Dados de exemplo
 const rncs = [
