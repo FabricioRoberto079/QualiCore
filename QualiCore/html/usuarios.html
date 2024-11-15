@@ -96,11 +96,11 @@
                 <form id="addProfileForm">
                     <div class="form-group">
                         <label for="userName">Nome do Usuário</label>
-                        <input type="text" id="userName" required>
+                        <input type="text" id="userName" name="NomeUsuario" placeholder="Digite seu nome completo" required>
                     </div>
                     <div class="form-group">
                         <label for="userDepartment">Setor</label>
-                        <select id="userDepartment" required onchange="updateManager()">
+                        <select id="userDepartment" name="Departamento" required onchange="updateManager()">
                             <option value="">Selecione um setor</option>
                             <option value="RH">Recursos Humanos</option>
                             <option value="TI">Tecnologia da Informação</option>
@@ -110,12 +110,28 @@
                     </div>
                     <div class="form-group">
                         <label for="userManager">Gestor</label>
-                        <input type="text" id="userManager" required disabled>
+                        <input type="text" id="userManager" name="Gestor" placeholder="Gestor" required disabled>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="text" id="email" name="Email" placeholder="@fsph.com.br" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cargo">Cargo</label>
+                        <input type="text" name="Cargo" id="cargo" placeholder="Digite seu Cargo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senha">Senha</label>
+                        <input type="password" id="senha" name="Senha" placeholder="Digite sua senha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmacaoSenha">Confirme sua senha</label>
+                        <input type="password" id="confirmacaoSenha" name="ConfirmacaoSenha" placeholder="Confirme sua senha" required>
                     </div>
                     <button type="submit" class="submit-btn">Adicionar</button>
                 </form>
             </div>
-        </div>
+        </div> 
     </main>
 </body>
 </html>

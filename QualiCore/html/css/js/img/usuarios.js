@@ -7,6 +7,7 @@ const departamentoBtn = document.querySelector('#departamentoBtn')
 const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
+const emailInput = document.getElementById('email')
 
 let lengthRnc = localStorage.getItem('lengthRnc')
 if(lengthRnc != null)
@@ -187,12 +188,49 @@ function closeModal() {
     document.getElementById('addProfileForm').reset();
     document.getElementById('userManager').value = ''; // Limpa o campo do gestor
 }
+// Email domain validation
+emailInput.addEventListener('blur', function () {
+    if (this.value && !this.value.endsWith('@fsph.com.br')) {
+        this.value += '@fsph.com.br';
+    }
+});
+
+const infNovoPerfil = () => {
+    const novoPerfil = document.getElementById("userName")
+    const setor = document.getElementById("userDepartment") 
+    const gestor = document.getElementById("userManager") 
+    const email = document.getElementById("email") 
+    const cargo = document.getElementById("cargo") 
+    const senhaInput = document.getElementById("senha") 
+    const confirmacaoSenha = document.getElementById("confirmacaoSenha") 
+
+    const infPerfil = {
+        nome: novoPerfil.value,
+        setor: setor.value,
+        gestor: gestor.value,
+        email: email.value,
+        cargo: cargo.value,
+        senhaInput: senhaInput.value,
+        confirmacaoSenha: confirmacaoSenha.value
+    }
+
+    console.log(infPerfil)
+return
+}
+
 
 function addProfile(event) {
     event.preventDefault();
     const name = document.getElementById('userName').value;
     const department = document.getElementById('userDepartment').value;
     const manager = document.getElementById('userManager').value;
+    const senhaInput = document.getElementById("senha")
+    const confirmacaoSenha = document.getElementById("confirmacaoSenha")
+
+    if (senhaInput.value !== confirmacaoSenha.value) {
+        alert('As senhas não coincidem!');
+        return;
+    }
 
     const newProfile = {
         id: profiles.length + 1,
@@ -204,6 +242,7 @@ function addProfile(event) {
 
     profiles.push(newProfile);
     renderProfiles();
+    infNovoPerfil()
     closeModal();
     event.target.reset();
 }
