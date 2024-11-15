@@ -165,7 +165,24 @@
     border: 1px solid #bdc3c7;
     border-radius: 4px;
 }
+#radioContainer {
+    display: flex; /* Alinha os itens em linha */
+    align-items: center; /* Alinha verticalmente ao centro */
+    gap: 8px; /* Espaçamento uniforme entre os grupos */
+    width: 75%;
+}
 
+#radioContainer label {
+    margin: 0; /* Remove margens extras do rótulo */
+    padding-left: 4px; /* Pequeno espaço entre o rádio e o texto */
+    padding-right: 0px; /* Pequeno espaço entre o rádio e o texto */
+}
+
+input[type="radio"] {
+    margin: 0; /* Remove qualquer margem externa */
+    padding: 0; /* Remove qualquer preenchimento */
+    display: inline-block; /* Garante alinhamento correto */
+}
 .submit-btn {
     background-color: #3498db;
     color: white;

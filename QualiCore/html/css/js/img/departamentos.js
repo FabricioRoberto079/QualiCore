@@ -7,6 +7,7 @@ const departamentoBtn = document.querySelector('#departamentoBtn')
 const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
+emailInput = document.getElementById("email")
 
 let lengthRnc = localStorage.getItem('lengthRnc')
 if(lengthRnc != null)
@@ -98,6 +99,23 @@ let departments = [
     
 ];
 
+const infNovoDepartamento = () => {
+    const novoDepartamento = document.getElementById("departmentName")
+    const siglaDepartamento = document.getElementById("siglaDepartamento")  
+    const email = document.getElementById("email") 
+    const ativo = document.querySelector('#radioContainer input[name="ativo"]:checked'); 
+
+    const infDepartamento = {
+        nome: novoDepartamento.value,
+        sigla: siglaDepartamento.value,
+        email: email.value,
+        ativo: ativo.value,
+    }
+
+    console.log(infDepartamento)
+return
+}
+
 function renderDepartments(filteredDepartments = departments) {
     const grid = document.getElementById('departmentsGrid');
     grid.innerHTML = '';
@@ -146,7 +164,7 @@ function closeModal() {
 function addDepartment(event) {
     event.preventDefault();
     const name = document.getElementById('departmentName').value;
-    const manager = document.getElementById('managerName').value;
+    const manager = document.getElementById('email').value;
 
     const newDepartment = {
         id: departments.length + 1,
@@ -157,6 +175,7 @@ function addDepartment(event) {
 
     departments.push(newDepartment);
     renderDepartments();
+    infNovoDepartamento()
     closeModal();
     event.target.reset();
 }
@@ -183,6 +202,13 @@ window.onclick = function (event) {
         closeModal();
     }
 }
+
+// Email domain validation
+emailInput.addEventListener('blur', function () {
+    if (this.value && !this.value.endsWith('@fsph.com.br')) {
+        this.value += '@fsph.com.br';
+    }
+});
 
 // Inicializa a renderização dos departamentos
 document.addEventListener('DOMContentLoaded', function(){

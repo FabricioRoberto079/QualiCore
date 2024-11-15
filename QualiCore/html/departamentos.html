@@ -96,12 +96,27 @@
                 <form id="addDepartmentForm">
                     <div class="form-group">
                         <label for="departmentName">Nome do Departamento</label>
-                        <input type="text" id="departmentName" required>
+                        <input type="text" id="departmentName" placeholder="Digite o nome do Departamento" required>
                     </div>
                     <div class="form-group">
-                        <label for="managerName">Nome do Gestor</label>
-                        <input type="text" id="managerName" required>
+                        <label for="siglaDepartamento">Sigla do Departamento</label>
+                        <input type="text" id="siglaDepartamento" placeholder="Digite a sigla do Departamento" required>
                     </div>
+                    <div class="form-group">
+                        <label for="email">Email do Gestor</label>
+                        <input type="text" id="email" placeholder="@fsph.com.br" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Ativo</label>
+                        <div id="radioContainer">
+                            <input type="radio" id="sim" name="ativo" value="Sim" >
+                            <label for="sim">Sim</label>
+                    
+                            <input type="radio" id="nao" name="ativo" value="Não" >
+                            <label for="nao">Não</label>
+                        </div>
+                    </div>
+                    
                     <button type="submit" class="submit-btn">Adicionar</button>
                 </form>
             </div>
