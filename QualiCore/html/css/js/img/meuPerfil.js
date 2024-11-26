@@ -8,7 +8,7 @@ const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
 
-var dados = {
+/*var dados = {
     nomeUsuario: nomeUsuario.innerText,
     username: username.innerText,
     fullNameDisplay: fullNameDisplay.innerText,
@@ -17,6 +17,23 @@ var dados = {
     instituicao:  document.getElementById('instituicao').innerText,
     position: document.getElementById('department').innerText 
 
+}*/
+
+const login = localStorage.getItem('login')
+
+if(login){
+    const user = JSON.parse(login)
+    
+    document.getElementById('nomeCompleto').innerText = user.nome
+    document.getElementById('telefone').innerText = "Não foi fornecido"
+    document.getElementById('instituicao').innerText = user.departamento.nome
+    document.getElementById('department').innerText = user.cargo
+
+    document.getElementById('username').innerText = user.nome;
+    const fullNameDisplay = document.getElementById('fullNameDisplay');
+
+    
+    fullNameDisplay.innerText = user.nome;
 }
 
 const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn, meuPerfilBtn]
