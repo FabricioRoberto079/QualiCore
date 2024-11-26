@@ -8,6 +8,16 @@ const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
 
+var dados = {
+    nomeUsuario: nomeUsuario.innerText,
+    username: username.innerText,
+    fullNameDisplay: fullNameDisplay.innerText,
+    nomeCompleto: document.getElementById('nomeCompleto').innerText,
+    telefone:  document.getElementById('telefone').innerText,
+    instituicao:  document.getElementById('instituicao').innerText,
+    position: document.getElementById('department').innerText 
+
+}
 
 const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn, meuPerfilBtn]
 const urlSidebar = [
@@ -60,17 +70,7 @@ function toggleEdit() {
             element.contentEditable = false;
         });
         // Aqui você poderia adicionar a lógica para salvar as alterações no servidor
-
-        var dados = {
-            nomeUsuario: nomeUsuario.innerText,
-            username: username.innerText,
-            fullNameDisplay: fullNameDisplay.innerText,
-            nomeCompleto: document.getElementById('nomeCompleto').innerText,
-            telefone:  document.getElementById('telefone').innerText,
-            instituicao:  document.getElementById('instituicao').innerText,
-            position: document.getElementById('department').innerText 
-
-        }
+        
     }
 }
 
