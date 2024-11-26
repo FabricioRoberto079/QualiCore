@@ -44,29 +44,31 @@
                 <input type="text" id="busca" class="campoBusca" placeholder="Procurar">
                 <i class="bi bi-search iconeBusca"></i>
             </div>
-            <div class="botoesAcao">
-                <button type="button" class="botaoIcone" id="cxEntradaBtn"><i class="bi bi-envelope"></i></button>  
-            </div>
-            <hr/>
-            <div class="infoUsuario">
-                <span id="nomeUsuario">Olá, Gustavo</span>
-                <div class="avatarUsuario" id="botaoPerfil">
-                    <img src="/api/placeholder/150/150" id="avatarImage">
-                        <i class="bi bi-person" id="avatarIcon"></i>
+            <div class="containerBtnAndInfo">
+                <div class="botoesAcao">
+                    <button type="button" id="btnMenu" class="botaoIcone"><i class="bi bi-list"></i></button>
+                    <button type="button" class="botaoIcone" id="cxEntradaBtn"><i class="bi bi-envelope"></i></button>
                 </div>
-                <div class="dropdownPerfil" id="menuPerfil">
-                    <a class="itemDropdown" id="meuPerfilBtn">
-                        <i class="bi bi-person-circle"></i>
-                        Meu Perfil
-                    </a>
-                    <div class="separadorDropdown"></div>
-                    <a href="index.html" class="itemDropdown">
-                        <i class="bi bi-box-arrow-right"></i>
-                        Sair
-                    </a>
+                <hr/>
+                <div class="infoUsuario">
+                    <span>Olá, <span id="nome">Gustavo</span></span>
+                    <div class="avatarUsuario" id="botaoPerfil">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    <div class="dropdownPerfil" id="menuPerfil">
+                        <a class="itemDropdown" id="meuPerfilBtn">
+                            <i class="bi bi-person-circle"></i>
+                            Meu Perfil
+                        </a>
+                        <div class="separadorDropdown"></div>
+                        <a href="index.html" class="itemDropdown">
+                            <i class="bi bi-box-arrow-right"></i>
+                            Sair
+                        </a>
+                    </div>
                 </div>
             </div>
-        </section>
+    </section>
         <nav class="navPrincipal"></nav>
     
         <div class="container">
