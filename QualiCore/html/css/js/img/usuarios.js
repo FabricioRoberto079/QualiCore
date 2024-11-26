@@ -196,16 +196,30 @@ function addProfile(event) {
     document.getElementById('userManager').value = ''; // Limpa o campo do gestor
 }
 
-function filtroDoPerfil(){
-    const statusSelecionado = document.getElementById('filtroPerfil').value;
-    
-    const filteredProfiles = profiles.filter(dept => 
+function filtroDoPerfil(statusSelecionado) {
+    // Atualizar os botões para destacar o ativo
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.classList.remove('active'); // Remove a classe 'active' de todos os botões
+    });
+
+    // Adiciona a classe 'active' ao botão correspondente
+    if (statusSelecionado === 'all') {
+        document.getElementById('btnTodos').classList.add('active');
+    } else if (statusSelecionado === 'active') {
+        document.getElementById('btnAtivos').classList.add('active');
+    } else if (statusSelecionado === 'blocked') {
+        document.getElementById('btnInativos').classList.add('active');
+    }
+
+    // Filtrar perfis com base no status selecionado
+    const filteredProfiles = profiles.filter(dept =>
         statusSelecionado === 'all' || dept.status === statusSelecionado
     );
 
-    // Agora renderize os departamentos filtrados
+    // Renderizar os perfis filtrados
     renderProfiles(filteredProfiles);
 }
+
 
 const infNovoPerfil = () => {
     const novoPerfil = document.getElementById("userName")

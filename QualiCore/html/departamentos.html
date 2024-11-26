@@ -75,13 +75,12 @@
     </section>
         <nav class="navPrincipal">
             <div class="logo">Departamentos</div>
-            <div class="filtro">
-                <select id="filtroStatus" onchange="filtrodoStatus()">
-                  <option value="all">Todos</option>
-                  <option value="active">Ativos</option>
-                  <option value="blocked">Inativos</option>
-                </select>
+            <div class="filter-box">
+                <button id="btnTodos" class="filter-btn" onclick="filtrodoStatus('all')">Todos</button>
+                <button id="btnAtivos" class="filter-btn" onclick="filtrodoStatus('active')">Ativos</button>
+                <button id="btnInativos" class="filter-btn" onclick="filtrodoStatus('blocked')">Inativos</button>
             </div>
+                       
             <button class="add-btn" onclick="openModal()">
                 <i class="fas fa-plus"></i> Novo Departamento
             </button>

@@ -172,16 +172,30 @@ for(let i = 0; i < listaSidebarBtn.length; i++) {
     })
 }
 
-function filtrodoStatus() {
-    const statusSelecionado = document.getElementById('filtroStatus').value;
-    
-    const filteredDepartments = departments.filter(dept => 
+function filtrodoStatus(statusSelecionado) {
+    // Atualizar os botões para destacar o botão ativo
+    document.querySelectorAll('.filter-btn').forEach(button => {
+        button.classList.remove('active'); // Remove a classe 'active' de todos os botões
+    });
+
+    // Adiciona a classe 'active' ao botão correspondente
+    if (statusSelecionado === 'all') {
+        document.getElementById('btnTodos').classList.add('active');
+    } else if (statusSelecionado === 'active') {
+        document.getElementById('btnAtivos').classList.add('active');
+    } else if (statusSelecionado === 'blocked') {
+        document.getElementById('btnInativos').classList.add('active');
+    }
+
+    // Filtrar os departamentos com base no status selecionado
+    const filteredDepartments = departments.filter(dept =>
         statusSelecionado === 'all' || dept.status === statusSelecionado
     );
 
-    // Agora renderize os departamentos filtrados
+    // Renderizar os departamentos filtrados
     renderDepartments(filteredDepartments);
 }
+
 
 let departments = null
 
