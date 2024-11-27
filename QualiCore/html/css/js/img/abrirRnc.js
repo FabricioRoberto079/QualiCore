@@ -170,27 +170,6 @@ setInterval(atualizandoUser(user, funcionarios),5000)
 if(user == null)
     window.location.href = 'index.html';
 
-const rnc = {
-    enquadramento:null,
-    origem:null,
-    descricao:null,
-    anexos:[],
-    acaoImediata:null,
-    investigacao:null,
-    setorAutuado:null,
-    data:null,
-    hora:null,
-    criador:null,
-    severidade:null,
-    status:'analise',
-    tipo:null,
-    setorAtuar:null,
-    linhaDoTempo:[],
-    pessoasAnexadas:[],
-    quem:null,
-    numero:1
-}
-
 const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn, meuPerfilBtn]
 const urlSidebar = [
     'homePage.html',
@@ -274,8 +253,6 @@ document.getElementById('anexo').addEventListener('change', function() {
         deleteBtn.textContent = '✖';
         deleteBtn.style.color = 'red';
         deleteBtn.onclick = function(evt) {
-            let nomeAnexo = evt.target.parentNode.parentNode.firstChild.innerText
-            rnc.anexos = rnc.anexos.filter((anexo)=> anexo != nomeAnexo)
             anexoTable.deleteRow(newRow.rowIndex - 1); // Remove a linha da tabela
             const input = document.getElementById('anexo');
             const dataTransfer = new DataTransfer();
@@ -294,22 +271,23 @@ document.getElementById('anexo').addEventListener('change', function() {
         };
         
         newRow.insertCell(1).appendChild(deleteBtn);
-        rnc.anexos.push(arquivos[i].name);
     }
     
     if (anexoTable.rows.length > 0) {
         anexoTable.closest('table').style.display = 'table'; // Mostra a tabela se houver anexos
     }
-});
+})
 
 async function handleAddSolicitacao (body){
     try {
+        const formData = new FormData()
+        for (let i = 0; i < anexo.files.length; i++) {
+            formData.append('anexos', anexo.files[i])
+        }
+        formData.append('json',JSON.stringify(body))
         const solicitacaoJson = await fetch('http://localhost:3333/solicitacaoRnc/criar',{
             method:"POST",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
         const solicitacao = await solicitacaoJson.json()
 
@@ -340,7 +318,7 @@ async function handleGetDepartamento (){
 }
 
 // função para mandar as informação da rnc pro localstore
-passos[1].addEventListener('submit',(evt)=>{
+passos[1].addEventListener('submit', async (evt)=>{
     evt.preventDefault()
     
     radios.forEach((radio)=>{
@@ -357,10 +335,11 @@ passos[1].addEventListener('submit',(evt)=>{
         investigacao:investigacao.value,
         setorAutuante:setorAutuado.value,
         criador:user,
-        anexos:[]
     }
 
-    handleAddSolicitacao(body)
+    console.log(body)
+
+    await handleAddSolicitacao(body)
 
     alert('Solicitação feita')
 })

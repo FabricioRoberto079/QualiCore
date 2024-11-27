@@ -5,6 +5,8 @@ const metodoOutroTexto = document.getElementById("metodoOutroTexto");
 const modalFooter = document.querySelector('.modal-footer')
 const modalBody = document.querySelector('.modalBody')
 const bodyTabelaRnc = document.querySelector('#bodyTabelaRNC')
+const bodyEvidenciasAndamento = document.querySelector('#bodyEvidenciasAndamento')
+const bodyAnexoComprovarEficacia = document.querySelector('#bodyAnexoComprovarEficacia')
 const DivlinhaDoTempo = document.querySelector('.linhaDoTempo')
 const detalhesRncDoModal = document.querySelector('.detalhesRncDoModal')
 const btnFormulario = document.querySelector('#btnFormulario')
@@ -157,7 +159,7 @@ async function handleGetMyCarLetter (){
     } catch (error) {
         console.log(error)
     } finally {
-        setInterval(handleGetMyCarLetter,30000)
+        // setInterval(handleGetMyCarLetter,30000)
     }
 }
 
@@ -262,13 +264,15 @@ async function changeDetalhamentoRnc (changeRnc){
 }
 
 async function handleAdd5w2h (body){
+    const formData = new FormData()
+    for (let i = 0; i < inputEvid.files.length; i++) {
+        formData.append('evidenciasAndamentos', inputEvid.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {
         const respostaJson = await fetch('http://localhost:3333/rnc/add5w2h',{
             method:"PATCH",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 200){
@@ -286,13 +290,15 @@ async function handleAdd5w2h (body){
 }
 
 async function handleEdit5w2h (body){
+    const formData = new FormData()
+    for (let i = 0; i < inputEvid.files.length; i++) {
+        formData.append('evidenciasAndamentos', inputEvid.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {
         const respostaJson = await fetch('http://localhost:3333/rnc/edit5w2h',{
             method:"PATCH",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 200){
@@ -310,13 +316,15 @@ async function handleEdit5w2h (body){
 }
 
 async function handleConclusao (body){
+    const formData = new FormData()
+    for (let i = 0; i < envidenciaDeEficacia.files.length; i++) {
+        formData.append('arquivosComprovarEficiencia', envidenciaDeEficacia.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {   
         const respostaJson = await fetch('http://localhost:3333/rncConcluidas/conclusao',{
             method:"POST",
-            headers:{
-                "Content-type":"application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 201){
@@ -327,6 +335,57 @@ async function handleConclusao (body){
 
         let resposta = await respostaJson.json()
         console.log(resposta)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleRecusarAnexo (body){
+    try {
+        const responseJson = await fetch("http://localhost:3333/solicitacaoRnc/recusarAnexo",{
+            method:"PUT",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        const response = await responseJson.json()
+        console.log(response)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleRecusarAnexoRnc (body){
+    try {
+        const responseJson = await fetch("http://localhost:3333/rnc/recusarAnexo",{
+            method:"PUT",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        const response = await responseJson.json()
+        console.log(response)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleRecusarEvidenciaAndamento (body){
+    try {
+        const responseJson = await fetch("http://localhost:3333/rnc/recusarEvidenciaAndamento",{
+            method:"PUT",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        const response = await responseJson.json()
+        console.log(response)
     } catch (error) {
         console.log(error)
     }
@@ -375,23 +434,6 @@ btnExitCouver.addEventListener('click',()=>{
     navPrincipal.classList.remove('couver')
     document.querySelector('.kanban-board').classList.remove('cursorNormal')
 })
-
-// sistema que lança o popup quando tem uma nova rnc
-// const showPopup = ()=>{
-//     if(rnc?.length > lengthRnc){
-//         popup.classList.add('show')
-//         localStorage.setItem('lengthRnc', lengthRnc + 1)
-//     }else{
-//         popup.classList.remove('show')
-//     }
-//     rnc = JSON.parse(localStorage.getItem('rnc'))
-//     lengthRnc = JSON.parse(localStorage.getItem('lengthRnc'))
-    
-//     setInterval(()=>{
-//         popup.classList.remove('show')
-//     },5000)
-// }
-// showPopup()
 
 // Sidebar Navigation
 const sidebarButtons = {
@@ -446,17 +488,6 @@ document.addEventListener('DOMContentLoaded',async function () {
         column.addEventListener('touchmove',touchmove)
     });
 
-    // Add card button functionality
-    const addButtons = document.querySelectorAll('.add-card-btn');
-    addButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const column = this.closest('.kanban-column').querySelector('.kanban-cards');
-            const newCard = createNewCard();
-            column.appendChild(newCard);
-            updateColumnCounts();
-        });
-    });
-
     rnc?.map((elementoRnc)=>{
         divsKanban.forEach((div)=>{
             if(div.getAttribute('data-column') == elementoRnc.status){
@@ -465,37 +496,6 @@ document.addEventListener('DOMContentLoaded',async function () {
         })
     })
 
-    function createNewCard() {
-        const card = document.createElement('div');
-        card.className = 'kanban-card';
-        card.draggable = true;
-        card.innerHTML = `
-            <div class="card-priority">Nova tarefa</div>
-            <div class="card-title">Clique para editar</div>
-            <div class="card-description">Adicione uma descrição</div>
-            <div class="card-footer">
-                <div class="assignees">
-                    <div class="assignee">+</div>
-                </div>
-                <div class="metrics">
-                    <div class="metric">0</div>
-                    <div class="metric">0</div>
-                </div>
-            </div>
-        `;
-
-        card.addEventListener('dragstart', handleDragStart);
-        card.addEventListener('dragend', handleDragEnd);
-        card.addEventListener('dblclick', openModalOnDoubleClick);
-        card.addEventListener('touchstart',handleTouchMoveStart)
-        card.addEventListener('touchend', handleTouchMoveEnd)
-        card.addEventListener('touchstart',(evt)=>{
-            handleDoubleTouch(evt,()=>openModalOnDoubleClick(card))
-        })
-
-        return card;
-    }
-    
     // Inicializa os contadores
     updateColumnCounts();
 
@@ -583,8 +583,6 @@ function handleTouchMoveEnd (evt) {
     const touch = evt.changedTouches[0]
     const targetColumn = document.elementFromPoint(touch.clientX , touch.clientY)
     const rncStatus = draggedCard.getAttribute('data-status')
-    console.log(targetColumn.getAttribute('data-column'))
-    console.log(rncStatus)
     if (targetColumn && targetColumn.classList.contains('kanban-cards')) {
         if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn.getAttribute('data-column') != 'analise'){
             let idRnc = draggedCard.getAttribute('data-_id')
@@ -648,8 +646,33 @@ function handleDragStart(e) {
 function handleDragEnd(e) {
     this.classList.remove('dragging');
     let element = e.target.parentNode
-    console.log(element.getAttribute('data-column'))
-    draggedCard.setAttribute('data-status',element.getAttribute('data-column'))
+    let targetColumn = element.getAttribute('data-column')
+    const rncStatus = draggedCard.getAttribute('data-status')
+    if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn.getAttribute('data-column') != 'analise'){
+        draggedCard.setAttribute('data-status',targetColumn)
+        let idRnc = draggedCard.getAttribute('data-_id')
+        const body = {
+            idRnc,
+            status:targetColumn.getAttribute('data-column'),
+            user
+        }
+        targetColumn.appendChild(draggedCard)
+        draggedCard.setAttribute('data-status',targetColumn.getAttribute('data-column'))
+        handleChangeStatus(body)
+        modificandoRncPeloId(draggedCard)
+        updateColumnCounts()
+        atualizandoRnc()
+        alert(`Status alterado para ${targetColumn}`)
+    }else if(targetColumn == "concluido"){
+        alert('Para concluir a RNC é necessario abrir o modal e preencher o formulario')
+    }else if(rncStatus == 'concluido'){
+        alert('Par modificar o status da RNC é necessario que ela não esteja como concluida')
+    }else if(targetColumn == "analise" && rncStatus != 'analise'){
+        alert('RNC não pode ter status em análise depois que ela é aceita')
+    }
+    else{
+        alert('Para modificar o status da RNC é necessario aceitar a solicitação')
+    }
     modificandoRncPeloId(draggedCard)
     updateColumnCounts()
     atualizandoRnc()
@@ -698,14 +721,6 @@ function openModalOnDoubleClick(e) {
     document.body.style = 'overflow:hidden;'
     console.log(e)
     const saveBtn = document.getElementById("saveBtn");
-    const data = new Date()
-    let dia = data.getDate() < 10?"0"+data.getDate():data.getDate()
-    let mes = data.getMonth() + 1 < 10?"0"+data.getMonth():data.getMonth()+1
-    let ano = data.getFullYear()
-    let hora = data.getHours() <10?"0"+data.getHours():data.getHours()
-    let minutos = data.getMinutes() < 10?"0"+data.getMinutes():data.getMinutes()
-    let fullHora =  `${hora}:${minutos}`
-    let fullData =  `${dia}/${mes}/${ano}`
 
     function jsonOrNot  (variavel){
         let done
@@ -732,7 +747,7 @@ function openModalOnDoubleClick(e) {
         setorAtuar: JSON.parse(e.getAttribute('data-setoratuar')),
         investigacao:e.getAttribute('data-investigacao'),
         criador:JSON.parse(e.getAttribute('data-criador')),
-        anexos:`${e.getAttribute('data-anexos')}`,
+        anexos:jsonOrNot(e.getAttribute('data-anexos'))?JSON.parse(e.getAttribute('data-anexos')):e.getAttribute('data-anexos'),
         linhaDoTempo: JSON.parse(e.getAttribute('data-linhaDoTempo')),
         pessoasAnexadas: JSON.parse(e.getAttribute('data-pessoasAnexadas')),
         quem: jsonOrNot(e.getAttribute('data-quem'))?JSON.parse(e.getAttribute('data-quem')):e.getAttribute('data-quem'),
@@ -742,12 +757,12 @@ function openModalOnDoubleClick(e) {
         como:e.getAttribute('data-como'),
         porque:e.getAttribute('data-porque'),
         custo:e.getAttribute('data-custo'),
-        evidenciasAndamentos:e.getAttribute('data-evidenciasandamentos'),
+        evidenciasAndamentos:jsonOrNot(e.getAttribute('data-evidenciasandamentos'))?JSON.parse(e.getAttribute('data-evidenciasandamentos')):e.getAttribute('data-evidenciasandamentos'),
         tipo:e.getAttribute('data-tipo'),
         avaliacaoDeAcao: jsonOrNot(e.getAttribute('data-avaliacaodeacao'))?JSON.parse(e.getAttribute('data-avaliacaodeacao')):e.getAttribute('data-avaliacaodeacao'),
         acaoDaEficacia:e.getAttribute('data-acaodaeficacia'),
         dataPrevista:e.getAttribute('data-dataPrevista'),
-        arquivosComprovarEficiencia:e.getAttribute('data-arquivoscomprovareficiencia')
+        arquivosComprovarEficiencia:jsonOrNot(e.getAttribute('data-arquivoscomprovareficiencia'))?JSON.parse(e.getAttribute('data-arquivoscomprovareficiencia')):e.getAttribute('data-arquivoscomprovareficiencia')
     };
 
     console.log(rncData)
@@ -764,22 +779,114 @@ function openModalOnDoubleClick(e) {
         `
         DivlinhaDoTempo.appendChild(div)
     })
-    rncData.anexos = rncData.anexos.split(',')
+    
     bodyTabelaRnc.innerHTML = ''
     rncData.anexos?.map((anexo)=>{
         const tr = document.createElement('tr')
+        const td = document.createElement('td')
+        const btnVer= document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.classList.add('verBtn')
+        btnVer.type = 'button'
+        btnVer.addEventListener('click',()=>{
+            window.open(anexo.path,'_blank')
+        })
+        const btnRecusar = document.createElement('button')
+        btnRecusar.innerText = 'Recusar'
+        btnRecusar.classList.add('recusarBtn')
+        btnRecusar.type = 'button'
+        btnRecusar.addEventListener('click', async (evt)=>{
+        
+            evt.target.parentNode.parentNode.remove()
+            rncData.anexos = rncData.anexos.filter((currentAnexo)=> currentAnexo.filename != anexo.filename)
+            console.log(rncData.anexos)
+            e.setAttribute('data-anexos', JSON.stringify(rncData.anexos))
+            if(rncData.status == 'analise'){
+                let body = {
+                    fileName:anexo.filename,
+                    idSolicitacaoRnc:rncData._id
+                }
+                await handleRecusarAnexo(body)
+            }else{
+                let body = {
+                    nameFile:anexo.filename,
+                    idRnc:rncData._id
+                }
+                await handleRecusarAnexoRnc(body)
+                console.log(body)
+            }
+        })
+        td.appendChild(btnVer)
+        td.appendChild(btnRecusar)
+
         tr.innerHTML = `
-            <td>${anexo}</td>
+            <td>${anexo.originalname}</td>
             <td>${e.getAttribute("data-data")}</td>
-            <td>
-                <button class="verBtn">Ver</button>
-                <button class="aceitarBtn">Aceitar</button>
-                <button class="recusarBtn">Recusar</button>
-            </td>
         `
+
+        tr.appendChild(td)
 
         bodyTabelaRnc.appendChild(tr)
     })
+
+    rncData.evidenciasAndamentos?.map((evidencias)=>{
+        let tr = document.createElement('tr')
+        tr.innerHTML = `
+            <td>${evidencias.filename}</td>
+            <td>27/09/2024 - 15:15h</td>
+        `
+        const btnVer = document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.type = 'button'
+        btnVer.classList.add('verBtn')
+        btnVer.addEventListener('click',()=>{
+            window.open(evidencias.path,"_blank")
+        })
+
+        const btnRecusar = document.createElement('button')
+        btnRecusar.innerText = "Recusar"
+        btnRecusar.type = 'button'
+        btnRecusar.classList.add('recusarBtn')
+        btnRecusar.addEventListener('click', async (evt)=>{
+            let body = {
+                idRnc:rncData._id,
+                nameFile:evidencias.filename
+            }
+            evt.target.parentNode.parentNode.remove()
+            rncData.evidenciasAndamentos = rncData.evidenciasAndamentos.filter((currentAnexo)=> currentAnexo.filename != evidencias.filename)
+            console.log(rncData.evidenciasAndamentos)
+            e.setAttribute('data-evidenciasandamentos', JSON.stringify(rncData.evidenciasAndamentos))
+
+            await handleRecusarEvidenciaAndamento(body)
+        })
+
+        let td = document.createElement('td')
+        td.appendChild(btnVer)
+        td.appendChild(btnRecusar)
+        tr.appendChild(td)
+        bodyEvidenciasAndamento.appendChild(tr)
+        console.log(bodyEvidenciasAndamento)
+    })
+
+    rncData.arquivosComprovarEficiencia?.map(async (arquivoComprovar)=>{
+        let tr = document.createElement('tr')
+        tr.innerHTML = `
+            <td>${arquivoComprovar.originalname}</td>
+            <td>27/09/2024 - 15:15h</td>
+        `
+        const btnVer = document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.type = 'button'
+        btnVer.classList.add('verBtn')
+        btnVer.addEventListener('click',()=>{
+            window.open(arquivoComprovar.path,"_blank")
+        })
+        let td = document.createElement('td')
+        td.appendChild(btnVer)
+        tr.appendChild(td)
+        bodyAnexoComprovarEficacia.appendChild(tr)        
+    })
+
     document.getElementById("rncNumber").textContent = rncData._id;
     document.querySelector('#data-hora').value = rncData.data + " - " + rncData.hora;
     document.querySelector('#origem').value = rncData.origem;
@@ -813,7 +920,7 @@ function openModalOnDoubleClick(e) {
     const checkboxes = document.querySelectorAll(".eficaciaRnc")
     const inputAvalicaoAcao = document.getElementById("tipoRncText")
     const envidenciaDeEficacia = document.querySelector('#envidenciaDeEficacia')
-
+    // inputEvid.files = rncData.evidenciasAndamentos
     checkboxes.forEach((checkBoxAvalicaoAcao)=>{
         if(rncData.avaliacaoDeAcao != null){
             rncData.avaliacaoDeAcao.map((acao)=>{
@@ -908,7 +1015,7 @@ function openModalOnDoubleClick(e) {
                     console.log('aqui')
                 }
     
-                if(inputEvid.value){
+                if(inputEvid.length > 0){
                     changes = true
                     console.log('aqui')
                 }
@@ -937,15 +1044,18 @@ function openModalOnDoubleClick(e) {
         
                 if(rncData.acaoDaEficacia != acaoDaEficacia){
                     changes = true
+                    console.log('aqui')
                 }
                 let dataPrevista = rncData.dataPrevista == 'null'?'':rncData.dataPrevista
                 if(dataPrevistaConclusao.value != dataPrevista){
                     changes = true                
+                    console.log('aqui')
                 }
-        
-                // if(envidenciaDeEficacia.value){
-                //     changes = true
-                // }
+
+                if(envidenciaDeEficacia.files.length > 0){
+                    changes = true
+                    console.log('aqui')
+                }
             }
     
             if(!changes) // se não tiver mudanças ele retorna
@@ -1003,13 +1113,10 @@ function openModalOnDoubleClick(e) {
 
         if(status.value == 'analise' && rncData.status == 'analise'){
             status.setCustomValidity("RNC não pode ser aceita com status em Análise")
-        }else{
-            status.setCustomValidity("")
-        }
-
-        if(status.value == 'analise' && rncData.status != 'analise'){
+        }else if(status.value == 'analise' && rncData.status != 'analise'){
             status.setCustomValidity("RNC não pode ter status alterado para em Análise")
-        }else{
+        }
+        else{
             status.setCustomValidity("")
         }
 
@@ -1088,7 +1195,6 @@ function openModalOnDoubleClick(e) {
                 como:inputComo.value,
                 porque:inputPorque.value,
                 custo:inputCusto.value,
-                evidenciasAndamentos:[]
             }
 
             await handleAdd5w2h(body)
@@ -1131,14 +1237,12 @@ function openModalOnDoubleClick(e) {
                 mudancas.push({custo:inputCusto.value})
             }
 
-            if(inputEvid.value){
-                mudancas.push({evidenciasAndamentos:['provas.png']})
+            if(inputEvid.files){
+                mudancas.push({evidenciasAndamentos:inputEvid.files})
             }
 
             if(mudancas.length == 0) // se não tiver mudanças ele retorna
                 return
-
-            // mudancas.push({linhaDoTempo:newLinhaDoTempo})
 
             mudancas.map((change)=>{
                 let key = Object.keys(change)[0]
@@ -1173,7 +1277,6 @@ function openModalOnDoubleClick(e) {
                 user,
                 avaliacaoDeAcao,
                 acaoDaEficacia,
-                arquivosComprovarEficiencia:['documento'],
                 dataPrevista:dataPrevistaConclusao.value
             }
 
@@ -1192,7 +1295,7 @@ function reloadCard(rnc) {
     // if(typeof rnc.linhaDoTempo == 'string')
     //     rnc.linhaDoTempo = JSON.parse(rnc.linhaDoTempo)
     Object.entries(rnc).forEach(([key, value]) => {
-        if(key === 'linhaDoTempo' || key === 'pessoasAnexadas' || key === 'enquadramento' || key === 'criador' || key === 'setorAutuante' || key === 'setorAtuar' || key === 'quem' || key === "avaliacaoDeAcao"){
+        if(key === 'linhaDoTempo' || key === 'pessoasAnexadas' || key === 'anexos' || key === 'enquadramento' || key === 'criador' || key === 'setorAutuante' || key === 'setorAtuar' || key === 'quem' || key === "avaliacaoDeAcao" || key === "evidenciasAndamentos" || key ==="arquivosComprovarEficiencia"){
             card.setAttribute(`data-${key}`, JSON.stringify(value))
         }else
             card.setAttribute(`data-${key}`, value)

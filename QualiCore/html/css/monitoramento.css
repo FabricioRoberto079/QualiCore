@@ -706,8 +706,9 @@ h3 {
     left: 0px;
     margin: 0px !important;
     width: 100vw;
-    min-height: 100vh;
+    height: 667px;
     padding: 0px;
+    overflow-y: scroll !important;
 }
 
 #btnExitCouver {
