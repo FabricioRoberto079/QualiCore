@@ -81,10 +81,9 @@
                 <div class="kanban-column">
                     <div class="column-header">
                         <div class="column-title">
-                            <span class="column-count">1</span>
+                            <span class="column-count">0</span>
                             Em análise
                         </div>
-                        <button class="add-card-btn">+</button>
                     </div>
                 <div class="scroll">
                         <div class="kanban-cards" data-column="analise">
@@ -215,7 +214,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label for="data-hora">Data/Hora:</label>
-                                    <input type="date" id="data-hora">
+                                    <input type="text" id="data-hora" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label for="origem">Origem:</label>
@@ -230,14 +229,14 @@
                                 <div class="form-group">
                                     <label for="setor-atuar">Setor p/ Atuar:</label>
                                     <select required name="setor-atuar" id="setor-atuar">
-                                        <option value="673b32b44a6550f14f07318c">Tecnologia da Informação</option>
-                                        <option value="673b33e04a6550f14f073190">Enfermaria</option>
-                                        <option value="673b33bc4a6550f14f07318f">Consultório</option>
-                                        <option value="673b33f24a6550f14f073191">Ambulatório</option>
-                                        <option value="673b34064a6550f14f073192">Recepção</option>
-                                        <option value="673b34184a6550f14f073193">Laboratório</option>
-                                        <option value="673b32dd4a6550f14f07318d">Recursos Humanos</option>
-                                        <option value="673b33004a6550f14f07318e">Marketing</option>
+                                        <option value="6744b6a92f2373c6149650bd">Tecnologia da Informação</option>
+                                        <option value="6744b72a2f2373c6149650c1">Enfermaria</option>
+                                        <option value="6744b70d2f2373c6149650c0">Consultório</option>
+                                        <option value="6744b7412f2373c6149650c2">Ambulatório</option>
+                                        <option value="6744b75b2f2373c6149650c3">Recepção</option>
+                                        <option value="6744b7762f2373c6149650c4">Laboratório</option>
+                                        <option value="6744b6c02f2373c6149650be">Recursos Humanos</option>
+                                        <option value="6744b6ef2f2373c6149650bf">Marketing</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -367,8 +366,8 @@
                                             <th>Ação</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
+                                    <tbody id="bodyEvidenciasAndamento">
+                                        <!-- <tr>
                                             <td>evidencia1.jpeg</td>
                                             <td>27/09/2024 - 15:15h</td>
                                             <td>
@@ -376,7 +375,7 @@
                                                 <button class="aceitarBtn">Aceitar Evidência</button>
                                                 <button class="recusarBtn">Recusar Evidência</button>
                                             </td>
-                                        </tr>
+                                        </tr> -->
                                     </tbody>
                                 </table>
                             </div>
@@ -423,8 +422,8 @@
                                             <th>Ação</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        <tr>
+                                    <tbody id="bodyAnexoComprovarEficacia">
+                                        <!-- <tr>
                                             <td>evidencia1.jpeg</td>
                                             <td>27/09/2024 - 15:15h</td>
                                             <td>
@@ -441,7 +440,7 @@
                                                 <button class="aceitarBtn">Aceitar Evidência</button>
                                                 <button class="recusarBtn">Recusar Evidência</button>
                                             </td>
-                                        </tr>
+                                        </tr> -->
                                     </tbody>
                                 </table>
                                 <div class="form-row">
