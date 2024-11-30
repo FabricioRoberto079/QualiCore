@@ -9,55 +9,55 @@ const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
 
 const btnMenu = document.querySelector('#btnMenu')
-btnMenu.addEventListener('click',()=>{
+btnMenu.addEventListener('click', () => {
     document.querySelector('main').style = "display:none;"
     document.querySelector('aside').classList.add('openMenu')
 })
 
 const btnCloneMenu = document.querySelector('#btnCloneMenu')
-btnCloneMenu.addEventListener('click',()=>{
+btnCloneMenu.addEventListener('click', () => {
     document.querySelector('aside').classList.remove('openMenu')
     document.querySelector('main').style = 'display: block;'
 })
 
 // pegando a rnc pelo localstorege
 let rnc = localStorage.getItem('rnc')
-if (rnc!= null)
+if (rnc != null)
     rnc = JSON.parse(rnc)
 let lengthRnc = localStorage.getItem('lengthRnc')
-if(lengthRnc != null)
+if (lengthRnc != null)
     lengthRnc = JSON.parse(lengthRnc)
 
-function showName (nomeCompleto){
+function showName(nomeCompleto) {
     while (nomeCompleto.length > 13) {
         const partes = nomeCompleto.trim().split(" ")
         if (partes.length > 1) {
             partes.pop()
             nomeCompleto = partes.join(" ")
-            if(partes[partes.length-1].length <= 2){
+            if (partes[partes.length - 1].length <= 2) {
                 partes.pop()
                 nomeCompleto = partes.join(" ")
             }
         } else {
-          nomeCompleto = nomeCompleto.substring(0, 13)
-          break
+            nomeCompleto = nomeCompleto.substring(0, 13)
+            break
         }
-      }
-      return nomeCompleto
+    }
+    return nomeCompleto
 }
 
 // pegando usuario
 let user = localStorage.getItem('login')
-if(user != null)
+if (user != null)
     user = JSON.parse(user)
 
-if(user == null)
+if (user == null)
     window.location.href = 'index.html';
 
 const nome = document.querySelector('#nome')
-nome.innerText = user.nome?showName(user.nome):'xxxx'
+nome.innerText = user.nome ? showName(user.nome) : 'xxxx'
 
-async function handleGetRncConcluidas (){
+async function handleGetRncConcluidas() {
     try {
         const concluidasJson = await fetch('http://localhost:3333/rncConcluidas')
         const concluidas = await concluidasJson.json()
@@ -69,16 +69,16 @@ async function handleGetRncConcluidas (){
 
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
-if(funcionarios != null)
+if (funcionarios != null)
     funcionarios = JSON.parse(funcionarios)
 
 // limpando o cash
 const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click',()=>{
+btnlimparCash.addEventListener('click', () => {
     localStorage.removeItem('rnc')
     localStorage.removeItem('lengthRnc')
     console.log(funcionarios)
-    funcionarios.map((funcionario)=>{
+    funcionarios.map((funcionario) => {
         funcionario.mensagens = []
     })
     localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
@@ -104,18 +104,18 @@ const urlSidebar = [
     'meuPerfil.html'
 ]
 
-for(let i = 0; i < listaSidebarBtn.length; i++) {
+for (let i = 0; i < listaSidebarBtn.length; i++) {
     listaSidebarBtn[i].addEventListener('click', () => {
         window.location.href = urlSidebar[i]
     })
 }
 
-botaoPerfil.addEventListener('click', function(event) {
+botaoPerfil.addEventListener('click', function (event) {
     event.stopPropagation();
     menuPerfil.classList.toggle('ativo');
 });
 
-document.addEventListener('click', function(event) {
+document.addEventListener('click', function (event) {
     if (!menuPerfil.contains(event.target) && !botaoPerfil.contains(event.target)) {
         menuPerfil.classList.remove('ativo');
     }
@@ -204,21 +204,41 @@ function getSeverityText(severity) {
     return severityMap[severity] || severity;
 }
 
-function openModal() {
-    document.getElementById('addRNCModal').style.display = 'flex';
+function openModalOnDoubleClick(event) {
+    const rncData = JSON.parse(event.target.getAttribute('data-rnc'));
+
+    // Preenchendo os campos do modal
+    document.getElementById('modalCriador').innerText = rncData.criador || 'Não informado';
+    document.getElementById('modalData').innerText = rncData.data || 'Não informado';
+    document.getElementById('modalHora').innerText = rncData.hora || 'Não informado';
+    document.getElementById('modalDescricao').innerText = rncData.descricao || 'Não informado';
+    document.getElementById('modalSetorAutuado').innerText = rncData.setorAutuado || 'Não informado';
+    document.getElementById('modalSeveridade').innerText = rncData.severidade || 'Não informado';
+    document.getElementById('modalStatus').innerText = rncData.status || 'Não informado';
+    document.getElementById('modalAcaoImediata').innerText = rncData.acaoImediata || 'Não informado';
+
+    // Exibindo o modal
+    document.getElementById('rncDetailModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
 
 function closeModal() {
-    document.getElementById('addRNCModal').style.display = 'none';
+    document.getElementById('rncDetailModal').style.display = 'none';
 }
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', async function() {
+document.addEventListener('DOMContentLoaded', async function () {
     const container = document.getElementById('rncGrid');
-    
+
     rncs = await handleGetRncConcluidas()
     console.log(rncs)
     rncs.forEach(rnc => {
         container.appendChild(createRNCCard(rnc));
+
+         // Adicionando os dados da RNC no atributo data-rnc
+         card.setAttribute('data-rnc', JSON.stringify(rnc));
+        
+         card.addEventListener('dblclick', openModalOnDoubleClick);
     });
+    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
 });
