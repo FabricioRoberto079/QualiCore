@@ -27,7 +27,6 @@
                 <button type="button" id="monitoramentoBtn"><i class="bi bi-clock"></i>Monitoramento</button>
                 <button type="button" id="departamentoBtn"><i class="bi bi-grid"></i>Departamentos</button>
                 <button type="button" id="usuariosBtn"><i class="bi bi-people"></i>Usuários</button>
-                <button type="button" id="limparCash">Limpar cash</button>
             </div>
         </div>
         <div class="divisaoSideBar">
@@ -55,7 +54,8 @@
                 <div class="infoUsuario">
                     <span>Olá, <span id="nome">Gustavo</span></span>
                     <div class="avatarUsuario" id="botaoPerfil">
-                        <i class="bi bi-person"></i>
+                        <i id="iconPesoa" class="bi bi-person"></i>
+                        <img class="imgPerfil" src="" alt="">
                     </div>
                     <div class="dropdownPerfil" id="menuPerfil">
                         <a class="itemDropdown" id="meuPerfilBtn">
@@ -73,7 +73,7 @@
     </section>
         <nav class="navPrincipal">
             <button id="btnExitCouver"><i class="bi bi-x"></i></button>
-            <div class="kanban-board" title="Click 2 vezes para vizualizar melhor">
+            <div class="kanban-board">
                 <div class="kanban-column">
                     <div class="column-header">
                         <div class="column-title">
@@ -225,14 +225,6 @@
                                 <div class="form-group">
                                     <label for="setor-atuar">Setor p/ Atuar:</label>
                                     <select required name="setor-atuar" id="setor-atuar">
-                                        <option value="6744b6a92f2373c6149650bd">Tecnologia da Informação</option>
-                                        <option value="6744b72a2f2373c6149650c1">Enfermaria</option>
-                                        <option value="6744b70d2f2373c6149650c0">Consultório</option>
-                                        <option value="6744b7412f2373c6149650c2">Ambulatório</option>
-                                        <option value="6744b75b2f2373c6149650c3">Recepção</option>
-                                        <option value="6744b7762f2373c6149650c4">Laboratório</option>
-                                        <option value="6744b6c02f2373c6149650be">Recursos Humanos</option>
-                                        <option value="6744b6ef2f2373c6149650bf">Marketing</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

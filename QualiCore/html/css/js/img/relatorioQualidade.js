@@ -6,60 +6,140 @@ const monitoramentoBtn = document.querySelector('#monitoramentoBtn')
 const departamentoBtn = document.querySelector('#departamentoBtn')
 const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
-const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
+const closeModalBtn = document.querySelector("#closeModalBtn")
 
 const btnMenu = document.querySelector('#btnMenu')
-btnMenu.addEventListener('click', () => {
+btnMenu.addEventListener('click',()=>{
     document.querySelector('main').style = "display:none;"
     document.querySelector('aside').classList.add('openMenu')
 })
 
 const btnCloneMenu = document.querySelector('#btnCloneMenu')
-btnCloneMenu.addEventListener('click', () => {
+btnCloneMenu.addEventListener('click',()=>{
     document.querySelector('aside').classList.remove('openMenu')
     document.querySelector('main').style = 'display: block;'
 })
 
 // pegando a rnc pelo localstorege
 let rnc = localStorage.getItem('rnc')
-if (rnc != null)
+if (rnc!= null)
     rnc = JSON.parse(rnc)
 let lengthRnc = localStorage.getItem('lengthRnc')
-if (lengthRnc != null)
+if(lengthRnc != null)
     lengthRnc = JSON.parse(lengthRnc)
 
-function showName(nomeCompleto) {
+function showName (nomeCompleto){
     while (nomeCompleto.length > 13) {
         const partes = nomeCompleto.trim().split(" ")
         if (partes.length > 1) {
             partes.pop()
             nomeCompleto = partes.join(" ")
-            if (partes[partes.length - 1].length <= 2) {
+            if(partes[partes.length-1].length <= 2){
                 partes.pop()
                 nomeCompleto = partes.join(" ")
             }
         } else {
-            nomeCompleto = nomeCompleto.substring(0, 13)
-            break
+          nomeCompleto = nomeCompleto.substring(0, 13)
+          break
         }
-    }
-    return nomeCompleto
+      }
+      return nomeCompleto
 }
 
 // pegando usuario
 let user = localStorage.getItem('login')
-if (user != null)
+if(user != null)
     user = JSON.parse(user)
 
-if (user == null)
+if(user == null)
     window.location.href = 'index.html';
 
-const nome = document.querySelector('#nome')
-nome.innerText = user.nome ? showName(user.nome) : 'xxxx'
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
 
-async function handleGetRncConcluidas() {
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
+
+async function handleGetMyCarLetter (){
     try {
-        const concluidasJson = await fetch('http://localhost:3333/rncConcluidas')
+        const novaMenssagemJson = await fetch(`http://localhost:3333/menssagem/msgNova/${user._id}`)
+        const novaMenssagem = await novaMenssagemJson.json()
+        notificacaoNovaMsg(novaMenssagem)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+handleGetMyCarLetter()
+
+function openModalOnDoubleClick(event) {
+    console.log(event)
+    // const rncData = JSON.parse(event.target.getAttribute('data-rnc'));
+
+    // Preenchendo os campos do modal
+    document.getElementById('modalCriador').innerText = event.criador.nome || 'Não informado';
+    document.getElementById('modalData').innerText = event.data || 'Não informado';
+    document.getElementById('modalHora').innerText = event.hora || 'Não informado';
+    document.getElementById('modalDescricao').innerText = event.descricao || 'Não informado';
+    document.getElementById('modalSetorAutuado').innerText = event.setorAtuar.nome || 'Não informado';
+    document.getElementById('modalSeveridade').innerText = event.nivelSeveridade || 'Não informado';
+    document.getElementById('modalStatus').innerText = event.status || 'Não informado';
+    document.getElementById('modalAcaoImediata').innerText = event.acaoImediata || 'Não informado';
+
+    // Exibindo o modal
+    document.getElementById('rncDetailModal').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('rncDetailModal').style.display = 'none';
+}
+
+// função que deixa a cor da carta laranja caso tenha alguam msg não vista
+function notificacaoNovaMsg (novaMsg){
+    if(novaMsg){
+        cxEntradaBtn.classList.add('novaMenssagem')
+    }else{
+        cxEntradaBtn.classList.remove('novaMenssagem')
+    }
+}
+
+const nome = document.querySelector('#nome')
+nome.innerText = user.nome?showName(user.nome):'xxxx'
+
+closeModalBtn.addEventListener('click',()=>{
+    closeModal()
+})
+
+async function handleGetRncConcluidas (){
+    try {
+        const concluidasJson = await fetch(`http://localhost:3333/rncConcluidas/${user._id}`)
         const concluidas = await concluidasJson.json()
         return concluidas
     } catch (error) {
@@ -69,29 +149,14 @@ async function handleGetRncConcluidas() {
 
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
-if (funcionarios != null)
+if(funcionarios != null)
     funcionarios = JSON.parse(funcionarios)
-
-// limpando o cash
-const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click', () => {
-    localStorage.removeItem('rnc')
-    localStorage.removeItem('lengthRnc')
-    console.log(funcionarios)
-    funcionarios.map((funcionario) => {
-        funcionario.mensagens = []
-    })
-    localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
-    localStorage.removeItem('login')
-    window.location.href = 'index.html';
-})
-
 
 
 // função que deixa a cor da carta laranja caso tenha alguam msg não vista
 
 
-const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn, meuPerfilBtn]
+const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn]
 const urlSidebar = [
     'homePage.html',
     'relatorioQualidade.html',
@@ -100,22 +165,21 @@ const urlSidebar = [
     'monitoramento.html',
     'departamentos.html',
     'usuarios.html',
-    'cxEntrada.html',
-    'meuPerfil.html'
+    'cxEntrada.html'
 ]
 
-for (let i = 0; i < listaSidebarBtn.length; i++) {
+for(let i = 0; i < listaSidebarBtn.length; i++) {
     listaSidebarBtn[i].addEventListener('click', () => {
         window.location.href = urlSidebar[i]
     })
 }
 
-botaoPerfil.addEventListener('click', function (event) {
+botaoPerfil.addEventListener('click', function(event) {
     event.stopPropagation();
     menuPerfil.classList.toggle('ativo');
 });
 
-document.addEventListener('click', function (event) {
+document.addEventListener('click', function(event) {
     if (!menuPerfil.contains(event.target) && !botaoPerfil.contains(event.target)) {
         menuPerfil.classList.remove('ativo');
     }
@@ -157,9 +221,12 @@ let rncs = [
 ];
 
 function createRNCCard(data) {
-    console.log(data)
+
     const card = document.createElement('div');
     card.className = 'rnc-card';
+    card.addEventListener('click',()=>{
+        openModalOnDoubleClick(data)
+    })
     card.innerHTML = `
         <div class="rnc-header">
             <div>
@@ -204,41 +271,23 @@ function getSeverityText(severity) {
     return severityMap[severity] || severity;
 }
 
-function openModalOnDoubleClick(event) {
-    const rncData = JSON.parse(event.target.getAttribute('data-rnc'));
-
-    // Preenchendo os campos do modal
-    document.getElementById('modalCriador').innerText = rncData.criador || 'Não informado';
-    document.getElementById('modalData').innerText = rncData.data || 'Não informado';
-    document.getElementById('modalHora').innerText = rncData.hora || 'Não informado';
-    document.getElementById('modalDescricao').innerText = rncData.descricao || 'Não informado';
-    document.getElementById('modalSetorAutuado').innerText = rncData.setorAutuado || 'Não informado';
-    document.getElementById('modalSeveridade').innerText = rncData.severidade || 'Não informado';
-    document.getElementById('modalStatus').innerText = rncData.status || 'Não informado';
-    document.getElementById('modalAcaoImediata').innerText = rncData.acaoImediata || 'Não informado';
-
-    // Exibindo o modal
-    document.getElementById('rncDetailModal').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function closeModal() {
-    document.getElementById('rncDetailModal').style.display = 'none';
+function openModal() {
+    document.getElementById('addRNCModal').style.display = 'flex';
 }
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener('DOMContentLoaded', async function() {
     const container = document.getElementById('rncGrid');
-
+    
     rncs = await handleGetRncConcluidas()
-    console.log(rncs)
-    rncs.forEach(rnc => {
-        container.appendChild(createRNCCard(rnc));
+    if(rncs.length>0){
+        rncs.forEach(rnc => {
+            container.appendChild(createRNCCard(rnc));
+        });
+    }else{
+        container.innerHTML = `
+            <h2 style="text-align: center;">Nenhuma rnc ainda foi marcada como concluida</h2>
+        `
+    }
 
-         // Adicionando os dados da RNC no atributo data-rnc
-         card.setAttribute('data-rnc', JSON.stringify(rnc));
-        
-         card.addEventListener('dblclick', openModalOnDoubleClick);
-    });
-    document.getElementById('closeModalBtn').addEventListener('click', closeModal);
 });

@@ -68,27 +68,64 @@ if(user == null)
 
 const nome = document.querySelector('#nome')
 nome.innerText = user.nome?showName(user.nome):'xxxx'
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
 
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
+
+async function handleGetMyCarLetter (){
+    try {
+        const novaMenssagemJson = await fetch(`http://localhost:3333/menssagem/msgNova/${user._id}`)
+        const novaMenssagem = await novaMenssagemJson.json()
+        notificacaoNovaMsg(novaMenssagem)
+    } catch (error) {
+        console.log(error)
+    } finally {
+        // setInterval(handleGetMyCarLetter,30000)
+    }
+}
+
+handleGetMyCarLetter()
+
+// função que deixa a cor da carta laranja caso tenha alguam msg não vista
+function notificacaoNovaMsg (novaMsg){
+    if(novaMsg){
+        cxEntradaBtn.classList.add('novaMenssagem')
+    }else{
+        cxEntradaBtn.classList.remove('novaMenssagem')
+    }
+}
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
 if(funcionarios != null)
     funcionarios = JSON.parse(funcionarios)
-
-// limpando o cash
-const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click',()=>{
-    localStorage.removeItem('rnc')
-    localStorage.removeItem('lengthRnc')
-    console.log(funcionarios)
-    funcionarios.map((funcionario)=>{
-        funcionario.mensagens = []
-    })
-    localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
-    localStorage.removeItem('login')
-    window.location.href = 'index.html';
-})
-
-
 
 // função que deixa a cor da carta laranja caso tenha alguam msg não vista
 function atualizandoUser (user, funcionarios){

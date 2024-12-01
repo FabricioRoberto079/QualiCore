@@ -1,3 +1,5 @@
+
+// animação de fundo
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 
@@ -80,38 +82,51 @@ window.addEventListener('resize', function () {
 init();
 animate();
 
+
+async function hendleSetSolicitacao (body){
+    try {
+        const responseJson = await fetch('http://localhost:3333/solicitacaoUsuario/addSolicitacao',{
+            method:'POST',
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        let response = await responseJson.json()
+
+        if(responseJson.status === 201){
+            alert(response.message)
+            return true
+        }
+        
+        alert(response.message)
+
+        return false
+    } catch (error) {
+        console.log(error)
+        return false
+    }
+}
+
 // Form handling
 const form = document.getElementById('cadastroForm');
-const cpfInput = document.getElementById('cpf');
+const nomeInput = document.querySelector('#nomeCompleto')
 const emailInput = document.getElementById('email');
 const senhaInput = document.getElementById('senha');
 const confirmarSenhaInput = document.getElementById('confirmarSenha');
 
-// CPF formatting
-cpfInput.addEventListener('input', function (e) {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 11) value = value.slice(0, 11);
-
-    if (value.length > 9) {
-        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{0,2}).*/, '$1.$2.$3-$4');
-    } else if (value.length > 6) {
-        value = value.replace(/^(\d{3})(\d{3})(\d{0,3}).*/, '$1.$2.$3');
-    } else if (value.length > 3) {
-        value = value.replace(/^(\d{3})(\d{0,3}).*/, '$1.$2');
-    }
-
-    e.target.value = value;
-});
 
 // Email domain validation
 emailInput.addEventListener('blur', function () {
-    if (this.value && !this.value.endsWith('@fsph.com.br')) {
-        this.value += '@fsph.com.br';
+    let regEx = new RegExp('@.*', 'i')
+    if (this.value && !this.value.endsWith('@fsph.se.gov.br')) {
+        this.value = this.value.replace(regEx,'@fsph.se.gov.br')
     }
-});
+})
 
 // Form submission
-form.addEventListener('submit', function (e) {
+form.addEventListener('submit',async function (e) {
     e.preventDefault();
     
     // Password validation
@@ -120,37 +135,32 @@ form.addEventListener('submit', function (e) {
         return;
     }
 
+
+    let avatar = nomeInput.value.substring(0,2).toUpperCase()
+
+    let body = {
+        nome:nomeInput.value,
+        email:emailInput.value,
+        senha:senhaInput.value,
+        confirmeSenha:confirmarSenhaInput.value,
+        avatar
+    }
+
+    let verificacao = await hendleSetSolicitacao(body)
+
     const button = form.querySelector('button');
     button.textContent = 'Registrando...';
     button.disabled = true;
-
-    // Simulate API call
-    const registerFunc = async () => {
-        let data = null;
-        const params = new URLSearchParams();
-        params.append("username", emailInput.value);
-        params.append("password", senhaInput.value);
-        try {
-            const dataJson = await fetch('http://localhost:8080/api/graus-severidade');
-            if (!dataJson.ok) {
-                throw new Error('Erro na resposta do servidor: ' + dataJson.statusText);
-            }
-            data = await dataJson.json();
-            console.log(data);
-        } catch (error) {
-            alert('Ocorreu um erro durante a solicitação: ' + error.message);
-            console.log(error.message);
-        }
-    };
     
-    registerFunc();
     
-    setTimeout(() => {
-        // alert('Cadastro realizado com sucesso!');
+    if(verificacao){
         button.textContent = 'Registrar';
         button.disabled = false;
         form.reset();
-    }, 2000);
+    }else{
+        button.textContent = 'Registrar';
+        button.disabled = false;
+    }
 });
 
 

@@ -66,58 +66,65 @@ if(user == null)
 const nome = document.querySelector('#nome')
 nome.innerText = user.nome?showName(user.nome):'xxxx'
 
+
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
+
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
+
+async function handleGetMyCarLetter (){
+    try {
+        const novaMenssagemJson = await fetch(`http://localhost:3333/menssagem/msgNova/${user._id}`)
+        const novaMenssagem = await novaMenssagemJson.json()
+        notificacaoNovaMsg(novaMenssagem)
+    } catch (error) {
+        console.log(error)
+    } finally {
+        // setInterval(handleGetMyCarLetter,30000)
+    }
+}
+
+// função que deixa a cor da carta laranja caso tenha alguam msg não vista
+function notificacaoNovaMsg (novaMsg){
+    if(novaMsg){
+        cxEntradaBtn.classList.add('novaMenssagem')
+    }else{
+        cxEntradaBtn.classList.remove('novaMenssagem')
+    }
+}
+
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
 if(funcionarios != null)
     funcionarios = JSON.parse(funcionarios)
 
-// limpando o cash
-const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click',()=>{
-    localStorage.removeItem('rnc')
-    localStorage.removeItem('lengthRnc')
-    console.log(funcionarios)
-    funcionarios.map((funcionario)=>{
-        funcionario.mensagens = []
-    })
-    localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
-    localStorage.removeItem('login')
-    window.location.href = 'index.html';
-})
-
-
-
-// função que deixa a cor da carta laranja caso tenha alguam msg não vista
-function atualizandoUser (user, funcionarios){
-    user = localStorage.getItem('login')
-    if(user != null)
-        user = JSON.parse(user)
-
-    console.log(user)
-
-    funcionarios = localStorage.getItem('funcionarios')
-    if(funcionarios != null)
-        funcionarios = JSON.parse(funcionarios)
-
-    funcionarios?.map((funcionario)=>{
-        if(funcionario.email == user.email){
-            funcionario.mensagens.map((menssagem)=>{
-                console.log(menssagem)
-                if(menssagem.lida == false){
-                    if(cxEntradaBtn.className == 'botaoIcone novaMenssagem') return
-                    else
-                        cxEntradaBtn.classList.add('novaMenssagem')
-                }
-                else{
-                    cxEntradaBtn.classList.remove('novaMenssagem')
-                }
-            })
-        }
-    })
-}
-
-atualizandoUser(user,funcionarios)
-setInterval(atualizandoUser(user, funcionarios),5000)
 
 async function handleGetDepartamento (){
     try {
@@ -172,30 +179,16 @@ for(let i = 0; i < listaSidebarBtn.length; i++) {
     })
 }
 
-function filtrodoStatus(statusSelecionado) {
-    // Atualizar os botões para destacar o botão ativo
-    document.querySelectorAll('.filter-btn').forEach(button => {
-        button.classList.remove('active'); // Remove a classe 'active' de todos os botões
-    });
-
-    // Adiciona a classe 'active' ao botão correspondente
-    if (statusSelecionado === 'all') {
-        document.getElementById('btnTodos').classList.add('active');
-    } else if (statusSelecionado === 'active') {
-        document.getElementById('btnAtivos').classList.add('active');
-    } else if (statusSelecionado === 'blocked') {
-        document.getElementById('btnInativos').classList.add('active');
-    }
-
-    // Filtrar os departamentos com base no status selecionado
-    const filteredDepartments = departments.filter(dept =>
-        statusSelecionado === 'all' || dept.status === statusSelecionado
+function filtrodoStatus() {
+    const statusSelecionado = document.getElementById('filtroStatus').value;
+    
+    const filteredDepartments = departments.filter(dept => 
+        statusSelecionado === 'all' || dept.ativo.toString() === statusSelecionado
     );
 
-    // Renderizar os departamentos filtrados
+    // Agora renderize os departamentos filtrados
     renderDepartments(filteredDepartments);
 }
-
 
 let departments = null
 
@@ -219,37 +212,43 @@ return
 function renderDepartments(filteredDepartments = departments) {
     const grid = document.getElementById('departmentsGrid');
     grid.innerHTML = '';
+    if(filteredDepartments.length > 0){
+        filteredDepartments.forEach(dept => {
+            const card = document.createElement('div');
+            card.className = 'department-card';
+            const statusClass = dept.ativo ? 'status-active' : 'status-blocked';
+            const statusText = dept.ativo  ? 'Ativo' : 'Bloqueado';
 
-    filteredDepartments.forEach(dept => {
-        const card = document.createElement('div');
-        card.className = 'department-card';
-        const statusClass = dept.ativo ? 'status-active' : 'status-blocked';
-        const statusText = dept.ativo  ? 'Ativo' : 'Bloqueado';
-
-        card.innerHTML = `
-            <div class="department-header">
-                <h3 class="department-name">${dept.nome}</h3>
-                <div class="department-actions">
-                    <button class="action-btn block-btn" onclick="toggleDepartmentStatus(${dept._id})">
-                        <i class="fas ${dept.ative ? 'fa-lock' : 'fa-lock-open'}"></i>
-                    </button>
-                    <button class="action-btn" onclick="removeDepartment(${dept.id})">
-                        <i class="fas fa-trash"></i>
-                    </button>
+            card.innerHTML = `
+                <div class="department-header">
+                    <h3 class="department-name">${dept.nome}</h3>
+                    <div class="department-actions">
+                        <button class="action-btn block-btn" onclick="toggleDepartmentStatus(${dept._id})">
+                            <i class="fas ${dept.ative ? 'fa-lock' : 'fa-lock-open'}"></i>
+                        </button>
+                        <button class="action-btn" onclick="removeDepartment(${dept.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <span class="status-badge ${statusClass}">${statusText}</span>
-            <div class="manager-info">
-                <div class="manager-avatar">${dept.gerente.avatar}</div>
-                <div>
-                    <div style="font-weight: bold;">${dept.gerente.nome}</div>
-                    <div style="font-size: 0.875rem; color: #7f8c8d;">Gestor</div>
+                <span class="status-badge ${statusClass}">${statusText}</span>
+                <div class="manager-info">
+                    <div class="manager-avatar">${dept.gerente.avatar}</div>
+                    <div>
+                        <div style="font-weight: bold;">${dept.gerente.nome}</div>
+                        <div style="font-size: 0.875rem; color: #7f8c8d;">Gestor</div>
+                    </div>
                 </div>
-            </div>
-        `;
+            `;
 
-        grid.appendChild(card);
-    });
+            grid.appendChild(card);
+        });
+    }else{
+        grid.innerHTML = `
+            <h2>Nenhum departamento encontrado</h2>
+        `
+    }
+
 }
 
 function openModal() {
@@ -282,7 +281,7 @@ function addDepartment(event) {
     
     console.log(novoDepartamento)
     handleSetDepartamento(novoDepartamento)
-    // event.target.reset();
+
 }
 
 function removeDepartment(id) {

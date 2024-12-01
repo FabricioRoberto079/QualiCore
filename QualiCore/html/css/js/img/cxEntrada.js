@@ -17,6 +17,8 @@ const btnFormulario = document.querySelector('#btnFormulario')
 const btnLinhaDoTempo = document.querySelector('#btnLinhaDoTempo')
 const detalhesRncDoModal = document.querySelector('.detalhesRncDoModal')
 const name = document.querySelector('#nome')
+
+const bodyEvidenciasAndamento = document.querySelector('#bodyEvidenciasAndamento')
 let atualActive
 
 // inputs modal
@@ -86,6 +88,61 @@ if(user == null)
 
 nome.innerText = showName(user.nome)
 
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
+
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
+
+async function handleGetMyCarLetter (){
+    try {
+        const novaMenssagemJson = await fetch(`http://localhost:3333/menssagem/msgNova/${user._id}`)
+        const novaMenssagem = await novaMenssagemJson.json()
+        notificacaoNovaMsg(novaMenssagem)
+    } catch (error) {
+        console.log(error)
+    } finally {
+        // setInterval(handleGetMyCarLetter,30000)
+    }
+}
+
+handleGetMyCarLetter()
+
+// função que deixa a cor da carta laranja caso tenha alguam msg não vista
+function notificacaoNovaMsg (novaMsg){
+    if(novaMsg){
+        cxEntradaBtn.classList.add('novaMenssagem')
+    }else{
+        cxEntradaBtn.classList.remove('novaMenssagem')
+    }
+}
+
 // pegano os funcionarios
 let funcioanrios
 
@@ -104,6 +161,18 @@ handleGetUsuariosAtivos()
 // atualizandoUser(user,funcionarios)
 // setInterval(atualizandoUser(user, funcionarios),5000)
 
+
+botaoPerfil.addEventListener('click', function(event) {
+    event.stopPropagation();
+    menuPerfil.classList.toggle('ativo');
+});
+
+document.addEventListener('click', function(event) {
+    if (!menuPerfil.contains(event.target) && !botaoPerfil.contains(event.target)) {
+        menuPerfil.classList.remove('ativo');
+    }
+});
+
 async function handleGetMenssagens (){
     try {
         const menssagensJson = await fetch(`http://localhost:3333/menssagem/minhasMsg/${user?._id}`)
@@ -116,7 +185,7 @@ async function handleGetMenssagens (){
 
 async function handleGetRncById (id){
     try {
-        const rncJson = await fetch(`http://localhost:3333/rnc/${id}`)
+        const rncJson = await fetch(`http://localhost:3333/rnc/pegarId/${id}`)
         const rnc = await rncJson.json()
         return rnc
     } catch (error) {
@@ -126,7 +195,7 @@ async function handleGetRncById (id){
 
 async function handleGetRncConcluidasById (id){
     try {
-        const rncConcluidaJson = await fetch(`http://localhost:3333/rncConcluidas/${id}`)
+        const rncConcluidaJson = await fetch(`http://localhost:3333/rncConcluidas/pegarId/${id}`)
         const rncConcluida = await rncConcluidaJson.json()
         return rncConcluida
     } catch (error) {
@@ -201,13 +270,16 @@ async function changeDetalhamentoRnc (changeRnc){
 }
 
 async function handleAdd5w2h (body){
+
+    const formData = new FormData()
+    for (let i = 0; i < inputEvid.files.length; i++) {
+        formData.append('evidenciasAndamentos', inputEvid.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {
         const respostaJson = await fetch('http://localhost:3333/rnc/add5w2h',{
             method:"PATCH",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 200){
@@ -225,13 +297,15 @@ async function handleAdd5w2h (body){
 }
 
 async function handleEdit5w2h (body){
+    const formData = new FormData()
+    for (let i = 0; i < inputEvid.files.length; i++) {
+        formData.append('evidenciasAndamentos', inputEvid.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {
         const respostaJson = await fetch('http://localhost:3333/rnc/edit5w2h',{
             method:"PATCH",
-            headers:{
-                "Content-Type": "application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 200){
@@ -249,13 +323,15 @@ async function handleEdit5w2h (body){
 }
 
 async function handleConclusao (body){
+    const formData = new FormData()
+    for (let i = 0; i < envidenciaDeEficacia.files.length; i++) {
+        formData.append('arquivosComprovarEficiencia', envidenciaDeEficacia.files[i])
+    }
+    formData.append('json',JSON.stringify(body))
     try {   
         const respostaJson = await fetch('http://localhost:3333/rncConcluidas/conclusao',{
             method:"POST",
-            headers:{
-                "Content-type":"application/json"
-            },
-            body:JSON.stringify(body)
+            body:formData
         })
 
         if(respostaJson.status == 201){
@@ -395,22 +471,114 @@ async function openModalOnDoubleClick(rncData) {
         `
         DivlinhaDoTempo.appendChild(div)
     })
-    // rncData.anexos = rncData.anexos?.split(',')
+    
     bodyTabelaRnc.innerHTML = ''
     rncData.anexos?.map((anexo)=>{
         const tr = document.createElement('tr')
+        const td = document.createElement('td')
+        const btnVer= document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.classList.add('verBtn')
+        btnVer.type = 'button'
+        btnVer.addEventListener('click',()=>{
+            window.open(anexo.path,'_blank')
+        })
+        const btnRecusar = document.createElement('button')
+        btnRecusar.innerText = 'Recusar'
+        btnRecusar.classList.add('recusarBtn')
+        btnRecusar.type = 'button'
+        btnRecusar.addEventListener('click', async (evt)=>{
+        
+            evt.target.parentNode.parentNode.remove()
+            rncData.anexos = rncData.anexos.filter((currentAnexo)=> currentAnexo.filename != anexo.filename)
+            console.log(rncData.anexos)
+            e.setAttribute('data-anexos', JSON.stringify(rncData.anexos))
+            if(rncData.status == 'analise'){
+                let body = {
+                    fileName:anexo.filename,
+                    idSolicitacaoRnc:rncData._id
+                }
+                await handleRecusarAnexo(body)
+            }else{
+                let body = {
+                    nameFile:anexo.filename,
+                    idRnc:rncData._id
+                }
+                await handleRecusarAnexoRnc(body)
+                console.log(body)
+            }
+        })
+        td.appendChild(btnVer)
+        td.appendChild(btnRecusar)
+
         tr.innerHTML = `
-            <td>${anexo}</td>
+            <td>${anexo.originalname}</td>
             <td>${e.getAttribute("data-data")}</td>
-            <td>
-                <button class="verBtn">Ver</button>
-                <button class="aceitarBtn">Aceitar</button>
-                <button class="recusarBtn">Recusar</button>
-            </td>
         `
+
+        tr.appendChild(td)
 
         bodyTabelaRnc.appendChild(tr)
     })
+
+    rncData.evidenciasAndamentos?.map((evidencias)=>{
+        let tr = document.createElement('tr')
+        tr.innerHTML = `
+            <td>${evidencias.filename}</td>
+            <td>27/09/2024 - 15:15h</td>
+        `
+        const btnVer = document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.type = 'button'
+        btnVer.classList.add('verBtn')
+        btnVer.addEventListener('click',()=>{
+            window.open(evidencias.path,"_blank")
+        })
+
+        const btnRecusar = document.createElement('button')
+        btnRecusar.innerText = "Recusar"
+        btnRecusar.type = 'button'
+        btnRecusar.classList.add('recusarBtn')
+        btnRecusar.addEventListener('click', async (evt)=>{
+            let body = {
+                idRnc:rncData._id,
+                nameFile:evidencias.filename
+            }
+            evt.target.parentNode.parentNode.remove()
+            rncData.evidenciasAndamentos = rncData.evidenciasAndamentos.filter((currentAnexo)=> currentAnexo.filename != evidencias.filename)
+            console.log(rncData.evidenciasAndamentos)
+            e.setAttribute('data-evidenciasandamentos', JSON.stringify(rncData.evidenciasAndamentos))
+
+            await handleRecusarEvidenciaAndamento(body)
+        })
+
+        let td = document.createElement('td')
+        td.appendChild(btnVer)
+        td.appendChild(btnRecusar)
+        tr.appendChild(td)
+        bodyEvidenciasAndamento.appendChild(tr)
+        console.log(bodyEvidenciasAndamento)
+    })
+
+    rncData.arquivosComprovarEficiencia?.map(async (arquivoComprovar)=>{
+        let tr = document.createElement('tr')
+        tr.innerHTML = `
+            <td>${arquivoComprovar.originalname}</td>
+            <td>27/09/2024 - 15:15h</td>
+        `
+        const btnVer = document.createElement('button')
+        btnVer.innerText = 'Ver'
+        btnVer.type = 'button'
+        btnVer.classList.add('verBtn')
+        btnVer.addEventListener('click',()=>{
+            window.open(arquivoComprovar.path,"_blank")
+        })
+        let td = document.createElement('td')
+        td.appendChild(btnVer)
+        tr.appendChild(td)
+        bodyAnexoComprovarEficacia.appendChild(tr)        
+    })
+
     document.getElementById("rncNumber").textContent = rncData._id;
     document.querySelector('#data-hora').value = rncData.data + " - " + rncData.hora;
     document.querySelector('#origem').value = rncData.origem;
@@ -444,7 +612,6 @@ async function openModalOnDoubleClick(rncData) {
     const checkboxes = document.querySelectorAll(".eficaciaRnc")
     const inputAvalicaoAcao = document.getElementById("tipoRncText")
     const envidenciaDeEficacia = document.querySelector('#envidenciaDeEficacia')
-
     checkboxes.forEach((checkBoxAvalicaoAcao)=>{
         if(rncData.avaliacaoDeAcao != null){
             rncData.avaliacaoDeAcao.map((acao)=>{
@@ -466,12 +633,14 @@ async function openModalOnDoubleClick(rncData) {
     saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);  // Substitui o botão antigo
     
     // sistema de botão tabs
-    if(rncData.setorAtuar == null){
+
+    if(rncData.setorAtuar == null || rncData.nivelSeveridade.toString() == 'null' || rncData.status == 'indeferido' || rncData.nivelSeveridade == 'indeferido'){
         andamentoBtn.disabled = true
     }else{
         andamentoBtn.disabled = false
     }
-    if(rncData.quem == null){
+
+    if(rncData.quem == null || rncData.nivelSeveridade.toString() == 'null' ||  rncData.status == 'indeferido' || rncData.nivelSeveridade == 'indeferido'){
         conclusaoBtn.disabled = true
     }else{
         conclusaoBtn.disabled = false
@@ -501,7 +670,7 @@ async function openModalOnDoubleClick(rncData) {
                 if(rncData.nivelSeveridade != severidade.value){
                     changes = true 
                 }
-    
+
                 if(rncData.status != status.value){
                     changes =  true
                 }
@@ -539,7 +708,7 @@ async function openModalOnDoubleClick(rncData) {
                     console.log('aqui')
                 }
     
-                if(inputEvid.value){
+                if(inputEvid.length > 0){
                     changes = true
                     console.log('aqui')
                 }
@@ -559,7 +728,7 @@ async function openModalOnDoubleClick(rncData) {
                     console.log('aqui')
                 }
                 
-                let acaoDaEficacia = null
+                let acaoDaEficacia = "null"
         
                 acaoEficacia.forEach((radioAcao)=>{
                     if(radioAcao.checked)
@@ -567,18 +736,20 @@ async function openModalOnDoubleClick(rncData) {
                 })
         
                 if(rncData.acaoDaEficacia != acaoDaEficacia){
-                    console.log('aqui')
+
                     changes = true
-                }
-                let dataPrevista = rncData.dataPrevista == null?'':rncData.dataPrevista
-                if(dataPrevistaConclusao.value != dataPrevista){
                     console.log('aqui')
-                    changes = true                
                 }
-        
-                // if(envidenciaDeEficacia.value){
-                //     changes = true
-                // }
+                let dataPrevista = rncData.dataPrevista == 'null'?'':rncData.dataPrevista
+                if(dataPrevistaConclusao.value != dataPrevista){
+                    changes = true                
+                    console.log('aqui')
+                }
+
+                if(envidenciaDeEficacia.files.length > 0){
+                    changes = true
+                    console.log('aqui')
+                }
             }
     
             if(!changes) // se não tiver mudanças ele retorna
@@ -634,9 +805,13 @@ async function openModalOnDoubleClick(rncData) {
             }
         }
 
-        if(status.value == 'analise'){
+
+        if(status.value == 'analise' && rncData.status == 'analise'){
             status.setCustomValidity("RNC não pode ser aceita com status em Análise")
-        }else{
+        }else if(status.value == 'analise' && rncData.status != 'analise'){
+            status.setCustomValidity("RNC não pode ter status alterado para em Análise")
+        }
+        else{
             status.setCustomValidity("")
         }
 
@@ -651,7 +826,9 @@ async function openModalOnDoubleClick(rncData) {
             }
         })
 
-        if(formSelect == "detalhamento" && rncData.nivelSeveridade == "null"){
+
+
+        if(formSelect == "detalhamento" && rncData.nivelSeveridade == "null"  && rncData.status == "analise" && status.value != 'indeferido'){
             let newRnc = {
                 idSolicitacaoRnc:rncData._id,
                 tipo:tipoMark,
@@ -661,12 +838,52 @@ async function openModalOnDoubleClick(rncData) {
                 user
             }
             
+
             await hendleSetRnc(newRnc)
             return
 
         }
 
-        if(formSelect == "detalhamento" && rncData.nivelSeveridade != "null"){
+
+        if(formSelect == "detalhamento" && rncData.status == 'indeferido' && rncData.nivelSeveridade == "indeferido"){
+            let body = {
+                idIndeferida:rncData._id,
+                tipo:tipoMark,
+                setorAtuar:setorAtuar.value,
+                nivelSeveridade:severidade.value,
+                status:status.value,
+                user
+            }
+
+            console.log('aa')
+
+
+            if(body.status == "indeferido"){
+                alert('Mude o status para a mudança ser salva')
+                return
+            }
+            
+            console.log(body)
+
+            await handleIndeferidaParaRncEditando(body)
+            return
+        }
+
+        if(formSelect == "detalhamento" && status.value == 'indeferido'){
+            const body = {
+                user,
+                idRnc:rncData._id
+            }
+
+            console.log('aaaa')
+
+            let done = await handleSetIndefirida(body)
+            if(done)
+                window.location.reload(true)
+            return
+        }
+
+        if(formSelect == "detalhamento" && (rncData.nivelSeveridade.toString() != "null" || rncData.status.toString() != 'null' || rncData.tipo.toString() != 'null' || rncData.setorAtuar.toString() != 'null')){
             let changes = []
             
             let changeRnc = {
@@ -678,7 +895,7 @@ async function openModalOnDoubleClick(rncData) {
                 changes.push({tipo:tipoMark})
             }
             
-            if(rncData.setorAtuar._id != setorAtuar.value){
+            if(rncData.setorAtuar?._id != setorAtuar.value){
                 console.log(setorAtuar.value)
                 changes.push({setorAtuar:setorAtuar.value})
             }
@@ -704,6 +921,9 @@ async function openModalOnDoubleClick(rncData) {
             return
         }
 
+
+        console.log(rncData.quem)
+
         if(formSelect == 'andamento' && rncData.quem == null || rncData.quem == "null"){
             const body = {
                 idRnc:rncData._id,
@@ -715,7 +935,7 @@ async function openModalOnDoubleClick(rncData) {
                 como:inputComo.value,
                 porque:inputPorque.value,
                 custo:inputCusto.value,
-                evidenciasAndamentos:[]
+
             }
 
             await handleAdd5w2h(body)
@@ -758,14 +978,14 @@ async function openModalOnDoubleClick(rncData) {
                 mudancas.push({custo:inputCusto.value})
             }
 
-            if(inputEvid.value){
-                mudancas.push({evidenciasAndamentos:['provas.png']})
+
+            if(inputEvid.files){
+                mudancas.push({evidenciasAndamentos:inputEvid.files})
             }
 
             if(mudancas.length == 0) // se não tiver mudanças ele retorna
                 return
 
-            // mudancas.push({linhaDoTempo:newLinhaDoTempo})
 
             mudancas.map((change)=>{
                 let key = Object.keys(change)[0]
@@ -800,13 +1020,17 @@ async function openModalOnDoubleClick(rncData) {
                 user,
                 avaliacaoDeAcao,
                 acaoDaEficacia,
-                arquivosComprovarEficiencia:['documento'],
+
                 dataPrevista:dataPrevistaConclusao.value
             }
 
             await handleConclusao(body)
             return
         }
+
+
+
+        return
     })
     modal.style.display = "flex";
 }

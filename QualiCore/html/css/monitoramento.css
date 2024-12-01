@@ -183,6 +183,11 @@ table#tabelaRNC {
     justify-content: end;
    
     border-top: 1px solid #ddd;
+
+    padding: 0px;
+    @media (max-width:970px) {
+       padding-top: 20px;
+    }
 }
 
 .modalBody {
@@ -305,28 +310,21 @@ table#tabelaRNC {
 
     box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
 
-    @media (max-width:500px) {
         padding: 5px;
         display: flex;
         flex-wrap: wrap;
+        max-width: 10vw;
+    @media (max-width:500px) {
         max-width: 110px;
      }
 }
 
 .itemLinhaDoTempo:nth-child(odd) .conteudoLinhaDoTempo {
-    left: 150px;
-
-    @media (max-width:500px) {
-       left: 110px;
-    }
+    left: 110px;
 }
 
 .itemLinhaDoTempo:nth-child(even) .conteudoLinhaDoTempo {
-    right: 150px;
-
-    @media (max-width:500px) {
-        right: 110px;
-    }
+    right: 110px;
 }
 
 .conteudoLinhaDoTempo::before {

@@ -17,7 +17,6 @@ body{
     justify-content: baseline;
     align-items: center;
     flex-wrap: wrap;
-
     @media (max-width:500px){
         display: grid;
         grid-template-columns: 1fr 1fr;

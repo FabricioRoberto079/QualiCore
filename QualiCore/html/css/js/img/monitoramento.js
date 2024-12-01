@@ -12,6 +12,7 @@ const detalhesRncDoModal = document.querySelector('.detalhesRncDoModal')
 const btnFormulario = document.querySelector('#btnFormulario')
 const btnLinhaDoTempo = document.querySelector('#btnLinhaDoTempo')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
+const setorAtuar = document.querySelector('#setor-atuar')
 
 let atualActive
 
@@ -96,8 +97,41 @@ function showName (nomeCompleto){
 
 // pegando usuario
 let user = localStorage.getItem('login')
+console.log(user)
 if(user != null)
     user = JSON.parse(user)
+
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
+
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
 
 // pegando funcionarios
 
@@ -106,20 +140,6 @@ if(user == null)
 
 const nome = document.querySelector('#nome')
 nome.innerText = user.nome?showName(user.nome):'xxxx'
-
-// limpando o cash
-const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click',()=>{
-    localStorage.removeItem('rnc')
-    localStorage.removeItem('lengthRnc')
-    console.log(funcionarios)
-    funcionarios.map((funcionario)=>{
-        funcionario.mensagens = []
-    })
-    localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
-    localStorage.removeItem('login')
-    window.location.href = 'index.html'
-})
 
 btnCloneMenu.addEventListener('click',()=>{
     document.querySelector('aside').classList.remove('openMenu')
@@ -176,7 +196,7 @@ handleGetMyCarLetter()
 
 async function handleGetSolicitacao (){
     try {
-        const solicitacaoJson = await fetch('http://localhost:3333/solicitacaoRnc')
+        const solicitacaoJson = await fetch(`http://localhost:3333/solicitacaoRnc/${user._id}`)
         const solicitacao = await solicitacaoJson.json()
         return solicitacao
     } catch (error) {
@@ -184,9 +204,87 @@ async function handleGetSolicitacao (){
     }
 }
 
+
+async function handleIndeferidaParaRnc (body){
+    try {
+        const responseJson = await fetch("http://localhost:3333/rncIndefirida/voltarRnc",{
+            method:"POST",
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify(body)
+        })
+
+        const response = await responseJson.json()
+        console.log(response)
+        if(responseJson.status == 201){
+            alert(response.message)
+        }
+
+        console.log(response)
+        return response.insertedId
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleGetDepartamentosAtivos(){
+    try {
+        const responseJson = await fetch("http://localhost:3333/departamento/ativos")
+        const response = await responseJson.json()
+        response.map((departamento)=>{
+            const options = document.createElement('option')
+            options.value = departamento._id
+            options.innerText = departamento.nome
+            setorAtuar.appendChild(options)
+        })
+
+        console.log(response)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+handleGetDepartamentosAtivos()
+
+async function handleGetRncIndefiridas (){
+    try {
+        const rncIndefiridasJson = await fetch(`http://localhost:3333/rncIndefirida/${user._id}`)
+        const rncIndefiridas = await rncIndefiridasJson.json()
+        return rncIndefiridas
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleSetIndefirida (body){
+    try {
+        const responseJson = await fetch('http://localhost:3333/rncIndefirida/add',{
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json'
+            },
+            body:JSON.stringify(body)
+        })
+
+        let response = await responseJson.json()
+
+
+        if(responseJson.status === 201){
+            alert('Conformidade mudada para indefirida')
+            return response.insertedId
+        }
+
+        console.log(response)
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
 async function handleGetRnc (){
     try {
-        const rncJson = await fetch('http://localhost:3333/rnc')
+        const rncJson = await fetch(`http://localhost:3333/rnc/${user._id}`)
         const rnc = await rncJson.json()
         return rnc
     } catch (error) {
@@ -284,6 +382,29 @@ async function handleAdd5w2h (body){
         let resposta = await respostaJson.json()
 
         console.log(resposta)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+
+async function handleIndeferidaParaRncEditando (body){
+    try {
+        const respostaJson = await fetch('http://localhost:3333/rncIndefirida/voltarRncEditando',{
+            method:"POST",
+            headers:{
+                "Content-type":"application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        let response = await respostaJson.json()
+        console.log(response)
+        if(respostaJson.status == 200){
+            alert(response.message)
+            window.location.reload(true)
+            return
+        }
     } catch (error) {
         console.log(error)
     }
@@ -393,7 +514,7 @@ async function handleRecusarEvidenciaAndamento (body){
 
 async function handleGetRncConcluidas (){
     try {
-        const concluidasJson = await fetch('http://localhost:3333/rncConcluidas')
+        const concluidasJson = await fetch(`http://localhost:3333/rncConcluidas/${user._id}`)
         const concluidas = await concluidasJson.json()
         return concluidas
     } catch (error) {
@@ -414,20 +535,6 @@ async function handleGetUsuariosAtivos (){
 handleGetUsuariosAtivos()
 
 let rnc = []
-// sistema que deixa o navPrincipal com o couver 
-kanbanBoard.addEventListener('dblclick', (evt)=>{
-    evt.stopImmediatePropagation()
-    navPrincipal.classList.add('couver')
-    document.querySelector('.kanban-board').classList.add('cursorNormal')
-})
-
-kanbanBoard.addEventListener('touchstart',(evt)=>{
-    handleDoubleTouch(evt,()=>{
-        evt.stopImmediatePropagation()
-        navPrincipal.classList.add('couver')
-        document.querySelector('.kanban-board').classList.add('cursorNormal')
-    })
-})
 
 // sistema para deixar o navPrincipal normal 
 btnExitCouver.addEventListener('click',()=>{
@@ -464,9 +571,12 @@ document.addEventListener('DOMContentLoaded',async function () {
     let rncSolicitadas = await handleGetSolicitacao()
     let rncAceitas = await handleGetRnc()
     let rncConcluidas = await handleGetRncConcluidas()
+Indefiridas = await handleGetRncIndefiridas() 
+
     rnc.push(...rncSolicitadas)
     rnc.push(...rncAceitas)
     rnc.push(...rncConcluidas)
+    rnc.push(...rncIndefiridas)
     
     // Add event listeners to cards and columns
     cards.forEach(card => {
@@ -577,38 +687,94 @@ function handleTouchMoveStart (evt) {
     evt.target.classList.add('dragging')
 }
 
-function handleTouchMoveEnd (evt) {
+async function handleTouchMoveEnd (evt) {
     enableScroll()
+    const date = new Date()
+    const dia = date.getDate()<10?"0"+date.getDate():date.getDate()
+    const mes = date.getMonth()+1<10?'0'+date.getMonth()+1:date.getMonth()+1
+    const fullYear = date.getFullYear()
+    const data = `${dia}/${mes}/${fullYear}`
+    let hora = date.getHours()<10?"0"+date.getHours():date.getHours()
+    let minuto = date.getMinutes()<10?"0"+date.getMinutes():date.getMinutes()
+    const fullHora = `${hora}:${minuto}`
     evt.target.classList.remove('dragging')
     const touch = evt.changedTouches[0]
-    const targetColumn = document.elementFromPoint(touch.clientX , touch.clientY)
+    const targetColumn = document.elementFromPoint(touch.clientX , touch.clientY).getAttribute('data-column')
+    const element = document.elementFromPoint(touch.clientX , touch.clientY)
     const rncStatus = draggedCard.getAttribute('data-status')
-    if (targetColumn && targetColumn.classList.contains('kanban-cards')) {
-        if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn.getAttribute('data-column') != 'analise'){
-            let idRnc = draggedCard.getAttribute('data-_id')
-            const body = {
-                idRnc,
-                status:targetColumn.getAttribute('data-column'),
-                user
-            }
-            targetColumn.appendChild(draggedCard)
-            draggedCard.setAttribute('data-status',targetColumn.getAttribute('data-column'))
-            handleChangeStatus(body)
-            modificandoRncPeloId(draggedCard)
-            updateColumnCounts()
-            atualizandoRnc()
-            alert(`Status alterado para ${targetColumn.getAttribute('data-column')}`)
-        }else if(targetColumn.getAttribute('data-column') == "concluido"){
+    let idRnc = draggedCard.getAttribute('data-_id')
+    let message = {
+        criador:user,
+        acao:null,
+        data,
+        hora:fullHora
+    }
+    if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn != "concluido" && targetColumn != 'analise' && targetColumn != 'indeferido' && rncStatus != 'indeferido'){
+        draggedCard.setAttribute('data-status',targetColumn)
+        const body = {
+            idRnc,
+            status:targetColumn,
+            user
+        }
+        message.acao = `Alterou o status para ${targetColumn}`
+        element.appendChild(draggedCard)
+        console.log(targetColumn)
+        draggedCard.setAttribute('data-status',targetColumn)
+        let linhaDoTempo = JSON.parse(draggedCard.getAttribute('data-linhadotempo'))
+        linhaDoTempo.push(message)
+        draggedCard.setAttribute('data-linhadotempo',JSON.stringify(linhaDoTempo))
+        handleChangeStatus(body)
+        modificandoRncPeloId(draggedCard) 
+        updateColumnCounts()
+        atualizandoRnc()
+        alert(`Status alterado para ${targetColumn}`)
+        return
+        }else if(targetColumn == "concluido"){
             alert('Para concluir a RNC é necessario abrir o modal e preencher o formulario')
         }else if(rncStatus == 'concluido'){
             alert('Par modificar o status da RNC é necessario que ela não esteja como concluida')
-        }else if(targetColumn.getAttribute('data-column') == "analise" && rncStatus != 'analise'){
-            alert('RNC não pode ter status em análise depois que ela é aceita')
+        }else if(targetColumn == "analise" && rncStatus != 'analise'){
+            alert('RNC não pode ter status em análise')
+        }else if(targetColumn == 'indeferido'){
+            let body = {
+                idRnc,
+                user
+            }
+            message.acao = `Marcou Rnc como indeferida`
+            element.appendChild(draggedCard)
+            draggedCard.setAttribute('data-status','indeferido')
+            draggedCard.setAttribute('data-nivelseveridade','indeferido')
+            let linhaDoTempo = JSON.parse(draggedCard.getAttribute('data-linhadotempo'))
+            linhaDoTempo.push(message)
+            draggedCard.setAttribute('data-linhadotempo',JSON.stringify(linhaDoTempo))
+            let newId = await handleSetIndefirida(body)
+            draggedCard.setAttribute('data-_id',newId)
+            rnc.map((indexRnc)=>{
+                if(indexRnc._id == idRnc){
+                    indexRnc._id = newId
+                }
+            })
+            modificandoRncPeloId(draggedCard)
+            updateColumnCounts()
+            atualizandoRnc()
+            return
+        }else if(rncStatus == 'indeferido'){
+            let body = {
+                idRncIndefirida:idRnc,
+                user,
+                status:targetColumn
+            }
+            const newId = await handleIndeferidaParaRnc(body)
+            draggedCard.setAttribute('data-_id', newId)
+            draggedCard.setAttribute('data-status', targetColumn)
+            modificandoRncPeloId(draggedCard)
+            updateColumnCounts()
+            atualizandoRnc()
+            return
         }
         else{
             alert('Para modificar o status da RNC é necessario aceitar a solicitação')
         }
-    }
     draggedCard = null
     document.querySelectorAll(".drag-over")?.forEach((drag)=>{
         drag.classList.remove("drag-over")
@@ -643,32 +809,90 @@ function handleDragStart(e) {
     e.dataTransfer.setData('text/html', this.innerHTML);
 }
 
-function handleDragEnd(e) {
+
+async function handleDragEnd(e) {
+    const date = new Date()
+    const dia = date.getDate()<10?"0"+date.getDate():date.getDate()
+    const mes = date.getMonth()+1<10?'0'+date.getMonth()+1:date.getMonth()+1
+    const fullYear = date.getFullYear()
+    const data = `${dia}/${mes}/${fullYear}`
+    let hora = date.getHours()<10?"0"+date.getHours():date.getHours()
+    let minuto = date.getMinutes()<10?"0"+date.getMinutes():date.getMinutes()
+    const fullHora = `${hora}:${minuto}`
     this.classList.remove('dragging');
     let element = e.target.parentNode
     let targetColumn = element.getAttribute('data-column')
     const rncStatus = draggedCard.getAttribute('data-status')
-    if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn.getAttribute('data-column') != 'analise'){
+    let idRnc = draggedCard.getAttribute('data-_id')
+    let message = {
+        criador:user,
+        acao:null,
+        data,
+        hora:fullHora
+    }
+    if(rncStatus != 'analise' && rncStatus != 'concluido' && targetColumn != "concluido" && targetColumn != 'analise' && targetColumn != 'indeferido' && rncStatus != 'indeferido'){
         draggedCard.setAttribute('data-status',targetColumn)
-        let idRnc = draggedCard.getAttribute('data-_id')
         const body = {
             idRnc,
-            status:targetColumn.getAttribute('data-column'),
+            status:targetColumn,
             user
         }
-        targetColumn.appendChild(draggedCard)
-        draggedCard.setAttribute('data-status',targetColumn.getAttribute('data-column'))
+        message.acao = `Alterou o status para ${targetColumn}`
+        element.appendChild(draggedCard)
+        draggedCard.setAttribute('data-status',targetColumn)
+        console.log(targetColumn)
+        let linhaDoTempo = JSON.parse(draggedCard.getAttribute('data-linhadotempo'))
+        linhaDoTempo.push(message)
+        draggedCard.setAttribute('data-linhadotempo',JSON.stringify(linhaDoTempo))
         handleChangeStatus(body)
-        modificandoRncPeloId(draggedCard)
+        modificandoRncPeloId(draggedCard) 
         updateColumnCounts()
         atualizandoRnc()
         alert(`Status alterado para ${targetColumn}`)
+        return
     }else if(targetColumn == "concluido"){
         alert('Para concluir a RNC é necessario abrir o modal e preencher o formulario')
     }else if(rncStatus == 'concluido'){
         alert('Par modificar o status da RNC é necessario que ela não esteja como concluida')
     }else if(targetColumn == "analise" && rncStatus != 'analise'){
-        alert('RNC não pode ter status em análise depois que ela é aceita')
+        alert('RNC não pode ter status em análise')
+    }else if(targetColumn == 'indeferido'){
+        let body = {
+            idRnc,
+            user
+        }
+        message.acao = `Marcou Rnc como indeferida`
+        element.appendChild(draggedCard)
+        draggedCard.setAttribute('data-status','indeferido')
+        draggedCard.setAttribute('data-nivelseveridade','indeferido')
+        let linhaDoTempo = JSON.parse(draggedCard.getAttribute('data-linhadotempo'))
+        linhaDoTempo.push(message)
+        draggedCard.setAttribute('data-linhadotempo',JSON.stringify(linhaDoTempo))
+        let newId = await handleSetIndefirida(body)
+        draggedCard.setAttribute('data-_id',newId)
+        rnc.map((indexRnc)=>{
+            if(indexRnc._id == idRnc){
+                indexRnc._id = newId
+            }
+        })
+        modificandoRncPeloId(draggedCard)
+        updateColumnCounts()
+        atualizandoRnc()
+        console.log('aaaa')
+        return
+    }else if(rncStatus == 'indeferido'){
+        let body = {
+            idRncIndefirida:idRnc,
+            user,
+            status:targetColumn
+        }
+        const newId = await handleIndeferidaParaRnc(body)
+        draggedCard.setAttribute('data-_id', newId)
+        draggedCard.setAttribute('data-status', targetColumn)
+        modificandoRncPeloId(draggedCard)
+        updateColumnCounts()
+        atualizandoRnc()
+        return
     }
     else{
         alert('Para modificar o status da RNC é necessario aceitar a solicitação')
@@ -718,10 +942,12 @@ function naoRepete (array){
 }
 
 function openModalOnDoubleClick(e) {
+    if(user.permissao == "User")
+        return
     document.body.style = 'overflow:hidden;'
     console.log(e)
     const saveBtn = document.getElementById("saveBtn");
-
+    console.log(funcionarios)
     function jsonOrNot  (variavel){
         let done
         try {
@@ -942,12 +1168,13 @@ function openModalOnDoubleClick(e) {
     saveBtn.parentNode.replaceChild(newSaveBtn, saveBtn);  // Substitui o botão antigo
     
     // sistema de botão tabs
-    if(rncData.setorAtuar == null){
+
+    if(rncData.setorAtuar == null || rncData.nivelSeveridade.toString() == 'null' || rncData.status == 'indeferido' || rncData.nivelSeveridade == 'indeferido'){
         andamentoBtn.disabled = true
     }else{
         andamentoBtn.disabled = false
     }
-    if(rncData.quem == null){
+    if(rncData.quem == null || rncData.nivelSeveridade.toString() == 'null' ||  rncData.status == 'indeferido' || rncData.nivelSeveridade == 'indeferido'){
         conclusaoBtn.disabled = true
     }else{
         conclusaoBtn.disabled = false
@@ -1131,7 +1358,8 @@ function openModalOnDoubleClick(e) {
             }
         })
 
-        if(formSelect == "detalhamento" && rncData.nivelSeveridade == "null"){
+
+        if(formSelect == "detalhamento" && rncData.nivelSeveridade == "null"  && rncData.status == "analise" && status.value != 'indeferido'){
             let newRnc = {
                 idSolicitacaoRnc:rncData._id,
                 tipo:tipoMark,
@@ -1146,7 +1374,46 @@ function openModalOnDoubleClick(e) {
 
         }
 
-        if(formSelect == "detalhamento" && rncData.nivelSeveridade != "null"){
+
+        if(formSelect == "detalhamento" && rncData.status == 'indeferido' && rncData.nivelSeveridade == "indeferido"){
+            let body = {
+                idIndeferida:rncData._id,
+                tipo:tipoMark,
+                setorAtuar:setorAtuar.value,
+                nivelSeveridade:severidade.value,
+                status:status.value,
+                user
+            }
+
+            console.log('aa')
+
+
+            if(body.status == "indeferido"){
+                alert('Mude o status para a mudança ser salva')
+                return
+            }
+            
+            console.log(body)
+
+            await handleIndeferidaParaRncEditando(body)
+            return
+        }
+
+        if(formSelect == "detalhamento" && status.value == 'indeferido'){
+            const body = {
+                user,
+                idRnc:rncData._id
+            }
+
+            console.log('aaaa')
+
+            let done = await handleSetIndefirida(body)
+            if(done)
+                window.location.reload(true)
+            return
+        }
+
+        if(formSelect == "detalhamento" && (rncData.nivelSeveridade.toString() != "null" || rncData.status.toString() != 'null' || rncData.tipo.toString() != 'null' || rncData.setorAtuar.toString() != 'null')){
             let changes = []
             
             let changeRnc = {
@@ -1158,7 +1425,8 @@ function openModalOnDoubleClick(e) {
                 changes.push({tipo:tipoMark})
             }
             
-            if(rncData.setorAtuar._id != setorAtuar.value){
+
+            if(rncData.setorAtuar?._id != setorAtuar.value){
                 console.log(setorAtuar.value)
                 changes.push({setorAtuar:setorAtuar.value})
             }
@@ -1183,6 +1451,9 @@ function openModalOnDoubleClick(e) {
             await changeDetalhamentoRnc(changeRnc)
             return
         }
+
+
+        console.log(rncData.quem)
 
         if(formSelect == 'andamento' && rncData.quem == null || rncData.quem == "null"){
             const body = {
@@ -1336,8 +1607,10 @@ function modificandoRncPeloId (divRnc) {
     let modificacao = false
     array?.map((indexRnc)=>{
         if(indexRnc._id == divRnc.getAttribute('data-_id')){
+            console.log(divRnc)
             if(indexRnc.status != divRnc.getAttribute('data-status')){
                 indexRnc.status = divRnc.getAttribute('data-status')
+                indexRnc.nivelSeveridade = divRnc.getAttribute('data-nivelseveridade')
                 indexRnc.linhaDoTempo = JSON.parse(divRnc.getAttribute('data-linhaDoTempo'))
                 indexRnc.pessoasAnexadas = JSON.parse(divRnc.getAttribute('data-pessoasAnexadas'))
                 modificacao = true

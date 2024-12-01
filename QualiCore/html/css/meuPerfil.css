@@ -164,3 +164,96 @@
 #photoInput {
     display: none;
 }
+
+.modal{
+    display: none;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modalMudarSenha {
+    width: 80vh;
+    height: 50vh;
+    background-color: white;
+    padding: 20px;
+    border-radius: 20px;
+
+    @media (max-width:720px) {
+        padding: 10px;
+        width: 80vw;
+    }
+}
+
+.modalMudarSenha h2 {
+    color: #3498db;
+}
+
+#formMudaSenha{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+    width: 70%;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
+
+.form-group input, .form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+}
+
+.btnAceitar {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #27ae60;
+    color: white;
+    cursor: pointer;
+}
+
+.btnNegar {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: none;
+    background-color: #c62828;
+    color: white;
+    cursor: pointer;
+}
+
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+
+.close-modal {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+}

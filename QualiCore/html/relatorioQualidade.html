@@ -25,7 +25,6 @@
                 <button type="button" id="monitoramentoBtn"><i class="bi bi-clock"></i>Monitoramento</button>
                 <button type="button" id="departamentoBtn"><i class="bi bi-grid"></i>Departamentos</button>
                 <button type="button" id="usuariosBtn"><i class="bi bi-people"></i>Usuários</button>
-                <button type="button" id="limparCash">Limpar cash</button>
             </div>
         </div>
         <div class="divisaoSideBar">
@@ -53,7 +52,8 @@
                 <div class="infoUsuario">
                     <span>Olá, <span id="nome">Gustavo</span></span>
                     <div class="avatarUsuario" id="botaoPerfil">
-                        <i class="bi bi-person"></i>
+                        <i id="iconPesoa" class="bi bi-person"></i>
+                        <img class="imgPerfil" src="" alt="">
                     </div>
                     <div class="dropdownPerfil" id="menuPerfil">
                         <a class="itemDropdown" id="meuPerfilBtn">
@@ -78,23 +78,23 @@
                 <div class="rnc-grid" id="rncGrid"></div>
             </div>
             
-            <div class="modal" id="rncDetailModal">
-                <div class="modal-content">
-                    <span id="closeModalBtn" class="close">&times;</span>
-                    <h2>Detalhes da RNC</h2>
-                    <p><strong>Criador:</strong> <span id="modalCriador"></span></p>
-                    <p><strong>Data:</strong> <span id="modalData"></span></p>
-                    <p><strong>Hora:</strong> <span id="modalHora"></span></p>
-                    <p><strong>Descrição:</strong> <span id="modalDescricao"></span></p>
-                    <p><strong>Setor Autuado:</strong> <span id="modalSetorAutuado"></span></p>
-                    <p><strong>Severidade:</strong> <span id="modalSeveridade"></span></p>
-                    <p><strong>Status:</strong> <span id="modalStatus"></span></p>
-                    <p><strong>Ação Imediata:</strong> <span id="modalAcaoImediata"></span></p>
-                </div>
-            </div>
+           
         
     </main>
-    
+    <div class="modal" id="rncDetailModal">
+        <div class="modal-content">
+            <span id="closeModalBtn" class="close">&times;</span>
+            <h2>Detalhes da RNC</h2>
+            <p><strong>Criador:</strong> <span id="modalCriador"></span></p>
+            <p><strong>Data:</strong> <span id="modalData"></span></p>
+            <p><strong>Hora:</strong> <span id="modalHora"></span></p>
+            <p><strong>Descrição:</strong> <span id="modalDescricao"></span></p>
+            <p><strong>Setor Autuado:</strong> <span id="modalSetorAutuado"></span></p>
+            <p><strong>Severidade:</strong> <span id="modalSeveridade"></span></p>
+            <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+            <p><strong>Ação Imediata:</strong> <span id="modalAcaoImediata"></span></p>
+        </div>
+    </div>
 
 </body>
 </html>

@@ -25,7 +25,6 @@
                 <button type="button" id="monitoramentoBtn"><i class="bi bi-clock"></i>Monitoramento</button>
                 <button type="button" id="departamentoBtn"><i class="bi bi-grid"></i>Departamentos</button>
                 <button type="button" id="usuariosBtn"><i class="bi bi-people"></i>Usuários</button>
-                <button type="button" id="limparCash">Limpar cash</button>
             </div>
         </div>
         <div class="divisaoSideBar">
@@ -53,7 +52,8 @@
                 <div class="infoUsuario">
                     <span>Olá, <span id="nome">Gustavo</span></span>
                     <div class="avatarUsuario" id="botaoPerfil">
-                        <i class="bi bi-person"></i>
+                        <i id="iconPesoa" class="bi bi-person"></i>
+                        <img class="imgPerfil" src="" alt="">
                     </div>
                     <div class="dropdownPerfil" id="menuPerfil">
                         <a class="itemDropdown" id="meuPerfilBtn">
@@ -71,11 +71,14 @@
     </section>
         <nav class="navPrincipal">
             <div class="logo">Perfis</div>
-            <div class="filter-box">
-                <button id="btnTodos" class="filter-btn" onclick="filtroDoPerfil('all')">Todos</button>
-                <button id="btnAtivos" class="filter-btn" onclick="filtroDoPerfil('active')">Ativos</button>
-                <button id="btnInativos" class="filter-btn" onclick="filtroDoPerfil('blocked')">Inativos</button>
-            </div>            
+            <div class="filtro">
+                <select id="filtroPerfil" onchange="filtroDoPerfil()">
+                  <option value="all">Todos</option>
+                  <option value="true">Ativos</option>
+                  <option value="false">Inativos</option>
+                  <option value="Solicitacoes">Solicitações</option>
+                </select>
+              </div>
             <button class="add-btn" onclick="openModal()">
                 <i class="fas fa-user-plus"></i> Novo Perfil
             </button>
@@ -97,17 +100,13 @@
                         <input type="text" id="userName" name="NomeUsuario" placeholder="Digite seu nome completo" required>
                     </div>
                     <div class="form-group">
-                        <label for="userDepartment">Setor</label>
+                        <label for="userDepartment">Departamento</label>
                         <select id="userDepartment" name="Departamento" required onchange="updateManager()">
                             <option value="">Selecione um setor</option>
-                            <option value="RH">Recursos Humanos</option>
-                            <option value="TI">Tecnologia da Informação</option>
-                            <option value="Marketing">Marketing</option>
-                            <option value="Financeiro">Financeiro</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="userManager">Gestor</label>
+                        <label for="userManager">Gerente</label>
                         <input type="text" id="userManager" name="Gestor" placeholder="Gestor" required disabled>
                     </div>
                     <div class="form-group">
@@ -119,6 +118,16 @@
                         <input type="text" name="Cargo" id="cargo" placeholder="Digite seu Cargo" required>
                     </div>
                     <div class="form-group">
+                        <label for="Permicao">Permissão</label>
+                        <select required name="permissao" id="selectPermissao">
+                            <option value="">--Selecione--</option>
+                            <option value="Adm">Adm</option>
+                            <option value="Controlador">Controlador</option>
+                            <option value="Gerente">Gerente</option>
+                            <option value="User">Usuario</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
                         <label for="senha">Senha</label>
                         <input type="password" id="senha" name="Senha" placeholder="Digite sua senha" required>
                     </div>
@@ -127,6 +136,57 @@
                         <input type="password" id="confirmacaoSenha" name="ConfirmacaoSenha" placeholder="Confirme sua senha" required>
                     </div>
                     <button type="submit" class="submit-btn">Adicionar</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="modalAceitar" class="modal">
+            <div class="modalAceitarUsuario">
+                <form id="formAceitar">
+                    <div class="modal-header">
+                        <h2>Adicionar Perfil</h2>
+                        <button id="btnFecharModalAceitar" class="close-modal">&times;</button>
+                    </div>
+                    <div class="form-group">
+                        <label>
+                            Departamento
+                            <select required name="departamento" id="selectDepartamentoAceitar">
+                                <option value="">--Selecione--</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Gerente
+                            <input required type="text" name="" id="inputGerente" readonly>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Cargo
+                            <input required type="text" name="" id="inputCargo">
+                        </label>    
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            Permissão
+                            <select required name="" id="selectPermissaoAceitar">
+                                <option value="">--Selecione--</option>
+                                <option value="Adm">Adm</option>
+                                <option value="Controlador">Controlador</option>
+                                <option value="Gerente">Gerente</option>
+                                <option value="User">Usuario</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="btnAceitar" type="submit">Aceitar</button>
+                        <button class="btnNegar" type="reset">Limpar</button>
+                    </div>
                 </form>
             </div>
         </div>

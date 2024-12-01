@@ -7,8 +7,20 @@ const departamentoBtn = document.querySelector('#departamentoBtn')
 const usuariosBtn = document.querySelector('#usuariosBtn')
 const cxEntradaBtn = document.querySelector('#cxEntradaBtn')
 const meuPerfilBtn = document.querySelector('#meuPerfilBtn')
-
+const departmentSelect = document.getElementById('userDepartment');
 const btnMenu = document.querySelector('#btnMenu')
+const selectPermissao = document.querySelector('#selectPermissao')
+const modalAceitar = document.querySelector('#modalAceitar')
+const formAceitar = document.querySelector('#formAceitar')
+const selectDepartamentoAceitar = document.querySelector('#selectDepartamentoAceitar')
+const inputCargo = document.querySelector('#inputCargo')
+const selectPermissaoAceitar = document.querySelector('#selectPermissaoAceitar')
+const btnFecharModalAceitar = document.querySelector('#btnFecharModalAceitar')
+const inputGerente = document.querySelector('#inputGerente')
+
+let departamentos 
+let profiles 
+
 btnMenu.addEventListener('click',()=>{
     document.querySelector('main').style = "display:none;"
     document.querySelector('aside').classList.add('openMenu')
@@ -24,6 +36,12 @@ botaoPerfil.addEventListener('click', function(event) {
     event.stopPropagation();
     menuPerfil.classList.toggle('ativo');
 });
+
+
+
+btnFecharModalAceitar.addEventListener('click',()=>{
+    modalAceitar.style = 'display:none;'
+})
 
 document.addEventListener('click', function(event) {
     if (!menuPerfil.contains(event.target) && !botaoPerfil.contains(event.target)) {
@@ -65,69 +83,165 @@ if(user == null)
 
 const nome = document.querySelector('#nome')
 nome.innerText = user.nome?showName(user.nome):'xxxx'
+const iconPesoa = document.querySelector('#iconPesoa')
+const imgPerfil = document.querySelector(".imgPerfil")
+
+if(user.perfil){
+    iconPesoa.style = 'display:none;'
+    imgPerfil.style = 'display:block;'
+    imgPerfil.src = user.perfil.path
+}
+
+if(user.permissao == 'User'){
+    dashBtn.style = 'display:none;'
+    dashBtn.disabled = true
+
+    relatorioBtn.style = 'display:none;'
+    relatorioBtn.disabled = true
+    
+    dashDetalhadoBtn.style = 'display:none;'
+    dashDetalhadoBtn.disabled = true
+
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}else if(user.permissao == 'Gerente' || user.permissao == 'Controlador'){
+    departamentoBtn.style = 'display:none;'
+    departamentoBtn.disabled = true
+
+    usuariosBtn.style = 'display:none;'
+    usuariosBtn.disabled = true
+}
+
+async function handleGetMyCarLetter (){
+    try {
+        const novaMenssagemJson = await fetch(`http://localhost:3333/menssagem/msgNova/${user._id}`)
+        const novaMenssagem = await novaMenssagemJson.json()
+        notificacaoNovaMsg(novaMenssagem)
+    } catch (error) {
+        console.log(error)
+    } finally {
+        // setInterval(handleGetMyCarLetter,30000)
+    }
+}
+
+// função que deixa a cor da carta laranja caso tenha alguam msg não vista
+function notificacaoNovaMsg (novaMsg){
+    if(novaMsg){
+        cxEntradaBtn.classList.add('novaMenssagem')
+    }else{
+        cxEntradaBtn.classList.remove('novaMenssagem')
+    }
+}
 
 // pegando funcionarios
 let funcionarios = localStorage.getItem('funcionarios')
 if(funcionarios != null)
     funcionarios = JSON.parse(funcionarios)
 
-// limpando o cash
-const btnlimparCash = document.querySelector('#limparCash')
-btnlimparCash.addEventListener('click',()=>{
-    localStorage.removeItem('rnc')
-    localStorage.removeItem('lengthRnc')
-    console.log(funcionarios)
-    funcionarios.map((funcionario)=>{
-        funcionario.mensagens = []
-    })
-    localStorage.setItem('funcionarios', JSON.stringify(funcionarios))
-    localStorage.removeItem('login')
-    window.location.href = 'index.html'
-})
-// função que deixa a cor da carta laranja caso tenha alguam msg não vista
-
-function atualizandoUser (user, funcionarios){
-    user = localStorage.getItem('login')
-    if(user != null)
-        user = JSON.parse(user)
-
-    console.log(user)
-
-    funcionarios = localStorage.getItem('funcionarios')
-    if(funcionarios != null)
-        funcionarios = JSON.parse(funcionarios)
-
-    funcionarios?.map((funcionario)=>{
-        if(funcionario.email == user.email){
-            funcionario.mensagens.map((menssagem)=>{
-                console.log(menssagem)
-                if(menssagem.lida == false){
-                    if(cxEntradaBtn.className == 'botaoIcone novaMenssagem') return
-                    else
-                        cxEntradaBtn.classList.add('novaMenssagem')
-                }
-                else{
-                    cxEntradaBtn.classList.remove('novaMenssagem')
-                }
-            })
-        }
-    })
-}
-
-atualizandoUser(user,funcionarios)
-setInterval(atualizandoUser(user, funcionarios),5000)
-
 async function handleGetUsuarios (){
     try {
         const usuariosJson = await fetch('http://localhost:3333/usuarios')
         const usuarios = await usuariosJson.json()
         profiles = usuarios
-        console.log(usuarios)
-        renderProfiles();
+        return usuarios
     } catch (error) {
         console.log(error)
     }
 
+}
+
+async function handleAceitarUsuario (body){
+    try {
+        const reponseJson = await fetch('http://localhost:3333/solicitacaoUsuario/aceitar',{
+            method:'POST',
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify(body)
+        })
+
+        let response = await reponseJson.json()
+
+        if(reponseJson.status == 201){
+            alert(response.message)
+            window.location.reload(true) 
+        }
+
+        console.log(response)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleNegarSolitacaoUsuarios (id){
+    try {
+        const responseJson =  await fetch(`http://localhost:3333/solicitacaoUsuario/${id}`,{
+            method:'DELETE'
+        })
+
+        if(responseJson.status == 200){
+            alert('Solicitação negada com sucesso')
+        }
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+async function handleGetSolicitacaoUsuarios (){
+    try {
+        const solicitacaoUsuariosJson = await fetch('http://localhost:3333/solicitacaoUsuario')
+        const solicitacaoUsuarios = await solicitacaoUsuariosJson.json()
+        console.log(solicitacaoUsuarios)
+        return solicitacaoUsuarios
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+handleGetSolicitacaoUsuarios()
+
+async function handleGetDepartamento (){
+    try {
+        const departamentosJson = await fetch('http://localhost:3333/departamento/ativos')
+        const resDepartamentos = await departamentosJson.json()
+        departamentos = resDepartamentos
+        departamentos.map((departamento)=>{
+            const option = document.createElement('option')
+            option.value = departamento._id
+            option.innerText = departamento.nome
+            departmentSelect.appendChild(option)
+            selectDepartamentoAceitar.appendChild(option)
+        })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+handleGetDepartamento()
+
+async function handleAddUser(body) {
+    try {
+        const responseJson = await fetch('http://localhost:3333/usuarios/addUser',{
+            method:"POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body:JSON.stringify(body)
+        })
+        
+        if(responseJson.status === 201){
+            alert('Usuario criado com sucesso')
+            window.location.reload(true) 
+        }
+
+        const response = await responseJson.json()
+        console.log(response)
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 const listaSidebarBtn = [dashBtn, relatorioBtn, rncBtn, dashDetalhadoBtn, monitoramentoBtn, departamentoBtn, usuariosBtn, cxEntradaBtn, meuPerfilBtn]
@@ -150,30 +264,32 @@ for(let i = 0; i < listaSidebarBtn.length; i++) {
 }
 
 
-const departmentManagers = {
-    'RH': 'Ana Costa',
-    'TI': 'Carlos Santos',
-    'Marketing': 'Juliana Oliveira',
-    'Financeiro': 'Roberto Silva'
-};
-
-let profiles = [
-    { id: 1, name: 'João Silva', department: 'TI', manager: 'Carlos Santos', status: 'active' },
-    { id: 2, name: 'Maria Oliveira', department: 'RH', manager: 'Ana Costa', status: 'active' },
-    { id: 3, name: 'Pedro Santos', department: 'Marketing', manager: 'Juliana Oliveira', status: 'blocked' }
-];
-
 function updateManager() {
-    const departmentSelect = document.getElementById('userDepartment');
     const managerInput = document.getElementById('userManager');
     
     const selectedDepartment = departmentSelect.value;
     if (selectedDepartment) {
-        managerInput.value = departmentManagers[selectedDepartment] || '';
+
+        let departamentoSelect = departamentos.filter((departamento)=> departamento._id == departmentSelect.value)[0]
+        managerInput.value = departamentoSelect.gerente.nome || '';
     } else {
         managerInput.value = '';
     }
 }
+
+function updateManagerModalAceitar() {
+    const managerInput = document.getElementById('userManager');
+    
+    const selectedDepartment = selectDepartamentoAceitar.value;
+    if (selectedDepartment) {
+        let departamentoSelect = departamentos.filter((departamento)=> departamento._id == selectDepartamentoAceitar.value)[0]
+        inputGerente.value = departamentoSelect.gerente.nome || '';
+    } else {
+        managerInput.value = '';
+    }
+}
+
+selectDepartamentoAceitar.addEventListener('change',updateManagerModalAceitar)
 
 function addProfile(event) {
     event.preventDefault();
@@ -195,31 +311,18 @@ function addProfile(event) {
     event.target.reset();
     document.getElementById('userManager').value = ''; // Limpa o campo do gestor
 }
-
-function filtroDoPerfil(statusSelecionado) {
-    // Atualizar os botões para destacar o ativo
-    document.querySelectorAll('.filter-btn').forEach(button => {
-        button.classList.remove('active'); // Remove a classe 'active' de todos os botões
-    });
-
-    // Adiciona a classe 'active' ao botão correspondente
-    if (statusSelecionado === 'all') {
-        document.getElementById('btnTodos').classList.add('active');
-    } else if (statusSelecionado === 'active') {
-        document.getElementById('btnAtivos').classList.add('active');
-    } else if (statusSelecionado === 'blocked') {
-        document.getElementById('btnInativos').classList.add('active');
+function filtroDoPerfil(){
+    const statusSelecionado = document.getElementById('filtroPerfil').value;
+    if(statusSelecionado != 'Solicitacoes'){
+        const filteredProfiles = profiles.filter(dept => 
+            statusSelecionado === 'all' || dept.ativo.toString() == statusSelecionado
+        );
+        // Agora renderize os departamentos filtrados
+        renderProfiles(filteredProfiles);
+    }else{
+        renderSolicitacoes()
     }
-
-    // Filtrar perfis com base no status selecionado
-    const filteredProfiles = profiles.filter(dept =>
-        statusSelecionado === 'all' || dept.status === statusSelecionado
-    );
-
-    // Renderizar os perfis filtrados
-    renderProfiles(filteredProfiles);
 }
-
 
 const infNovoPerfil = () => {
     const novoPerfil = document.getElementById("userName")
@@ -244,10 +347,14 @@ const infNovoPerfil = () => {
 return
 }
 
-function renderProfiles(filteredProfiles = profiles) {
+
+async function renderProfiles(filteredProfiles) {
     const grid = document.getElementById('profilesGrid');
     grid.innerHTML = '';
-
+    if(filteredProfiles == null){
+        filteredProfiles = await handleGetUsuarios()
+    }
+    if(filteredProfiles.length > 0){
     filteredProfiles.forEach(profile => {
         const card = document.createElement('div');
         card.className = 'profile-card';
@@ -272,7 +379,7 @@ function renderProfiles(filteredProfiles = profiles) {
                 </div>
             </div>
             <div class="manager-info">
-                <div class="avatar">${profile.departamento.gerente.substring(0,2)}</div>
+                <div class="avatar">${profile.departamento.sigla}</div>
                 <div>
                     <div style="font-weight: bold;">${profile.departamento.gerente}</div>
                     <div style="font-size: 0.875rem; color: #7f8c8d;">Gestor</div>
@@ -282,6 +389,69 @@ function renderProfiles(filteredProfiles = profiles) {
 
         grid.appendChild(card);
     });
+
+    }else{
+        grid.innerHTML = `
+            <h2>Nenhum usuario encontrado</h2>
+        `
+    }
+}
+
+async function renderSolicitacoes (){
+    const grid = document.getElementById('profilesGrid');
+    grid.innerHTML = '';
+    
+    let filteredProfiles = await handleGetSolicitacaoUsuarios()
+    
+    if(filteredProfiles.length > 0){
+    filteredProfiles.forEach(profile => {
+        console.log(profile)
+        const card = document.createElement('div');
+        card.className = 'profile-card';
+        const statusClass = profile.ativo ? 'status-active' : 'status-blocked';
+        const statusText = profile.ativo ? 'Ativo' : 'Bloqueado';
+        const divBtn = document.createElement('div')
+        divBtn.classList.add('profile-btn')
+        const btnAceitar = document.createElement('button')
+        btnAceitar.type = 'button'
+        btnAceitar.classList.add('btnAceitar')
+        btnAceitar.innerText = 'Aceitar'
+        btnAceitar.addEventListener('click',()=>{
+            showModalAceitar(profile)
+        })
+        const btnNegar = document.createElement('button')
+        btnNegar.type = 'button'
+        btnNegar.classList.add('btnNegar')
+        btnNegar.innerText = 'Negar'
+        btnNegar.addEventListener('click', async ()=>{
+            await handleNegarSolitacaoUsuarios(profile._id)
+            card.remove()
+        })
+        
+        divBtn.appendChild(btnAceitar)
+        divBtn.appendChild(btnNegar)
+
+
+        card.innerHTML = `
+            <div class="profile-header">
+                <div class="profile-main-info">
+                    <div class="avatar">${profile.avatar}</div>
+                    <h3 class="profile-name">${profile.nome}</h3>
+                </div>
+            </div>
+            <div class="manager-info">
+                <p>Email:</p>
+                <p>${profile.email}</p>
+            </div>
+        `;
+        card.appendChild(divBtn)
+        grid.appendChild(card);
+    });
+    }else{
+        grid.innerHTML = `
+            <h2>Nenhuma solicitação encontrada</h2>
+        `
+    }
 }
 
 function openModal() {
@@ -294,58 +464,95 @@ function closeModal() {
     document.getElementById('userManager').value = ''; // Limpa o campo do gestor
 }
 
-function addProfile(event) {
+
+async function addProfile(event) {
     event.preventDefault();
     const name = document.getElementById('userName').value;
     const department = document.getElementById('userDepartment').value;
     const manager = document.getElementById('userManager').value;
-    const email = document.querySelector('#email')
-    const cargo = document.querySelector('#cargo')
-    const senhaInput = document.getElementById("senha")
-    const confirmacaoSenha = document.getElementById("confirmacaoSenha")
+    const email = document.querySelector('#email').value
+    const cargo = document.querySelector('#cargo').value
+    const senhaInput = document.getElementById("senha").value
+    const confirmacaoSenha = document.getElementById("confirmacaoSenha").value
 
     let regexSenhaForte = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
 
-    if(!regexSenhaForte.test(senhaInput.value)){
+    if(!regexSenhaForte.test(senhaInput)){
         alert('A senha precisa ser forte!');
         return;
     }
 
-    if (senhaInput.value !== confirmacaoSenha.value) {
+
+    if (senhaInput !== confirmacaoSenha) {
         alert('As senhas não coincidem!');
         return;
     }
+
+
+    let avatar = name.substring(0,2).toUpperCase()
 
     const newPerfil = {
         nome:name,
         departamento:department,
         email,
+        avatar,
         cargo,
-        senha,
-        confirmacaoSenha
+        senha:senhaInput,
+        confirmeSenha:confirmacaoSenha,
+        permissao:selectPermissao.value,
+        ativo:true
     }
 
-    console.log(newPerfil)
+    await handleAddUser(newPerfil)
 
-    const newProfile = {
-        id: profiles.length + 1,
-        name: name,
-        department: department,
-        manager: manager,
-        status: 'active'
-    };
-
-    profiles.push(newProfile);
-    renderProfiles();
+    // profiles.push(newProfile);
+    // renderProfiles();
     closeModal();
     event.target.reset();
 }
+
+
+formAceitar.addEventListener('submit', async (evt)=>{
+    evt.preventDefault()
+
+    let nome = modalAceitar.getAttribute('data-nome')
+    let email = modalAceitar.getAttribute('data-email') 
+    let senha = modalAceitar.getAttribute('data-senha') 
+    let avatar = modalAceitar.getAttribute('data-avatar') 
+    let idSolicitacao = modalAceitar.getAttribute('data-id')
+
+    let body = {
+        idSolicitacao,
+        nome,
+        departamento:selectDepartamentoAceitar.value,
+        email,
+        avatar,
+        cargo:inputCargo.value,
+        senha,
+        permissao:selectPermissaoAceitar.value,
+        ativo:true
+    }
+
+    console.log(body)
+
+    await handleAceitarUsuario(body)
+})
 
 function removeProfile(id) {
     if (confirm('Tem certeza que deseja remover este perfil?')) {
         profiles = profiles.filter(profile => profile.id !== id);
         renderProfiles();
     }
+}
+
+function showModalAceitar (body){
+    modalAceitar.style = 'display:flex;'
+    modalAceitar.setAttribute('data-nome',body.nome)
+    modalAceitar.setAttribute('data-avatar',body.avatar)
+    modalAceitar.setAttribute('data-email',body.email)
+    modalAceitar.setAttribute('data-senha',body.senha)
+    modalAceitar.setAttribute('data-id',body._id)
+
 }
 
 function toggleProfileStatus(id) {
@@ -362,7 +569,10 @@ window.onclick = function(event) {
     if (event.target == modal) {
         closeModal();
     }
+
+    if(event.target == modalAceitar){
+        modalAceitar.style = 'display:none;'
+    }
 }
 
-// Inicializa a renderização dos perfis
-handleGetUsuarios()
+renderProfiles()
